@@ -8,6 +8,7 @@ function logConfig() {
   if (process.env.NODE_ENV === 'development') {
     console.log('NextAuth Configuration:')
     console.log('NEXTAUTH_URL:', process.env.NEXTAUTH_URL)
+    console.log('Current HOST:', typeof window !== 'undefined' ? window.location.origin : 'Server Side')
     console.log('NEXTAUTH_SECRET exists:', !!process.env.NEXTAUTH_SECRET)
     console.log('GOOGLE_CLIENT_ID exists:', !!process.env.GOOGLE_CLIENT_ID)
     console.log('GOOGLE_CLIENT_SECRET exists:', !!process.env.GOOGLE_CLIENT_SECRET)
