@@ -1,0 +1,262 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import { FiSave, FiX, FiPlus, FiMinus } from 'react-icons/fi';
+
+export default function GoalForm({ goal, onSave, onCancel }) {
+  const [formData, setFormData] = useState({
+    title: '',
+    description: '',
+    currentSelfDescription: '',
+    futureSelfDescription: '',
+    subGoals: [{ title: '子目標 1', description: '', isCompleted: false }]
+  });
+
+  useEffect(() => {
+    if (goal) {
+      setFormData({
+        title: goal.title,
+        description: goal.description,
+        currentSelfDescription: goal.currentSelfDescription || '',
+        futureSelfDescription: goal.futureSelfDescription || '',
+        subGoals: goal.subGoals.map(sg => ({
+          title: sg.title,
+          description: sg.description,
+          isCompleted: sg.isCompleted,
+          id: sg.id
+        }))
+      });
+    }
+  }, [goal]);
+
+  const handleInputChange = (field, value) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  const handleSubGoalChange = (index, field, value) => {
+    setFormData(prev => ({
+      ...prev,
+      subGoals: prev.subGoals.map((sg, i) => 
+        i === index ? { ...sg, [field]: value } : sg
+      )
+    }));
+  };
+
+  const addSubGoal = () => {
+    setFormData(prev => ({
+      ...prev,
+      subGoals: [
+        ...prev.subGoals,
+        {
+          title: `子目標 ${prev.subGoals.length + 1}`,
+          description: '',
+          isCompleted: false
+        }
+      ]
+    }));
+  };
+
+  const removeSubGoal = (index) => {
+    if (formData.subGoals.length > 1) {
+      setFormData(prev => ({
+        ...prev,
+        subGoals: prev.subGoals.filter((_, i) => i !== index)
+      }));
+    }
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    
+    if (!formData.title.trim()) {
+      alert('請輸入目標標題');
+      return;
+    }
+
+    if (formData.subGoals.some(sg => !sg.title.trim())) {
+      alert('請確保所有子目標都有標題');
+      return;
+    }
+
+    onSave({
+      ...formData,
+      subGoalCount: formData.subGoals.length
+    });
+  };
+
+  return (
+    <div className="bg-white rounded-lg shadow-md">
+      <div className="px-6 py-4 border-b border-gray-200">
+        <h3 className="text-lg font-medium text-gray-900">
+          {goal ? '編輯目標' : '新增目標'}
+        </h3>
+      </div>
+
+      <form onSubmit={handleSubmit} className="p-6 space-y-6">
+        {/* 基本資訊 */}
+        <div className="grid grid-cols-1 gap-6">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              目標標題 *
+            </label>
+            <input
+              type="text"
+              value={formData.title}
+              onChange={(e) => handleInputChange('title', e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              placeholder="輸入你的目標標題"
+              required
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              目標描述
+            </label>
+            <textarea
+              value={formData.description}
+              onChange={(e) => handleInputChange('description', e.target.value)}
+              rows={3}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              placeholder="描述這個目標的詳細內容"
+            />
+          </div>
+        </div>
+
+        {/* 自我描述 */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              目前的自己（0%）
+            </label>
+            <textarea
+              value={formData.currentSelfDescription}
+              onChange={(e) => handleInputChange('currentSelfDescription', e.target.value)}
+              rows={4}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              placeholder="描述你目前的狀態，作為起點"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              未來的自己（100%）
+            </label>
+            <textarea
+              value={formData.futureSelfDescription}
+              onChange={(e) => handleInputChange('futureSelfDescription', e.target.value)}
+              rows={4}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              placeholder="描述你理想中的狀態，作為目標"
+            />
+          </div>
+        </div>
+
+        {/* 子目標 */}
+        <div>
+          <div className="flex justify-between items-center mb-4">
+            <label className="block text-sm font-medium text-gray-700">
+              子目標列表 *
+            </label>
+            <button
+              type="button"
+              onClick={addSubGoal}
+              className="inline-flex items-center px-3 py-1 border border-transparent text-sm font-medium rounded-md text-blue-600 bg-blue-100 hover:bg-blue-200 transition-colors"
+            >
+              <FiPlus className="mr-1 h-4 w-4" />
+              新增子目標
+            </button>
+          </div>
+
+          <div className="space-y-4">
+            {formData.subGoals.map((subGoal, index) => (
+              <div key={index} className="border border-gray-200 rounded-md p-4">
+                <div className="flex justify-between items-start mb-3">
+                  <h4 className="text-sm font-medium text-gray-900">
+                    子目標 {index + 1}
+                  </h4>
+                  {formData.subGoals.length > 1 && (
+                    <button
+                      type="button"
+                      onClick={() => removeSubGoal(index)}
+                      className="text-red-600 hover:text-red-800 transition-colors"
+                    >
+                      <FiMinus className="h-4 w-4" />
+                    </button>
+                  )}
+                </div>
+
+                <div className="grid grid-cols-1 gap-3">
+                  <div>
+                    <input
+                      type="text"
+                      value={subGoal.title}
+                      onChange={(e) => handleSubGoalChange(index, 'title', e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      placeholder="子目標標題"
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <textarea
+                      value={subGoal.description}
+                      onChange={(e) => handleSubGoalChange(index, 'description', e.target.value)}
+                      rows={2}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      placeholder="子目標描述"
+                    />
+                  </div>
+
+                  {goal && (
+                    <div className="flex items-center">
+                      <input
+                        type="checkbox"
+                        id={`subgoal-${index}`}
+                        checked={subGoal.isCompleted}
+                        onChange={(e) => handleSubGoalChange(index, 'isCompleted', e.target.checked)}
+                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                      />
+                      <label htmlFor={`subgoal-${index}`} className="ml-2 text-sm text-gray-700">
+                        已完成
+                      </label>
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-md">
+            <p className="text-sm text-blue-800">
+              💡 提示：當你完成 {Math.round((1 / formData.subGoals.length) * 100)}% 的子目標時，
+              你與未來的自己就會縮近 {Math.round((1 / formData.subGoals.length) * 100)}% 的差距！
+            </p>
+          </div>
+        </div>
+
+        {/* 按鈕 */}
+        <div className="flex justify-end space-x-4 pt-6 border-t border-gray-200">
+          <button
+            type="button"
+            onClick={onCancel}
+            className="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 transition-colors"
+          >
+            <FiX className="mr-2 h-4 w-4" />
+            取消
+          </button>
+          <button
+            type="submit"
+            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 transition-colors"
+          >
+            <FiSave className="mr-2 h-4 w-4" />
+            {goal ? '更新目標' : '創建目標'}
+          </button>
+        </div>
+      </form>
+    </div>
+  );
+}
