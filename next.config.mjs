@@ -10,19 +10,7 @@ const nextConfig = {
       },
       {
         protocol: 'https',
-        hostname: 'platform-lookaside.fbsbx.com',
-        port: '',
-        pathname: '/**',
-      },
-      {
-        protocol: 'https',
         hostname: 'avatars.githubusercontent.com',
-        port: '',
-        pathname: '/**',
-      },
-      {
-        protocol: 'https',
-        hostname: 'graph.facebook.com',
         port: '',
         pathname: '/**',
       },

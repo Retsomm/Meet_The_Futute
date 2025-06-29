@@ -2,8 +2,7 @@
 
 import { getProviders, signIn } from 'next-auth/react';
 import { useState, useEffect } from 'react';
-import { FiMail, FiGithub } from 'react-icons/fi';
-import { FaFacebook } from 'react-icons/fa';
+import { FiMail, FiGithub, FiTwitter } from 'react-icons/fi';
 import Link from 'next/link';
 
 export default function SignIn() {
@@ -21,10 +20,10 @@ export default function SignIn() {
     switch (providerId) {
       case 'google':
         return <FiMail className="h-5 w-5" />;
-      case 'facebook':
-        return <FaFacebook className="h-5 w-5" />;
       case 'github':
         return <FiGithub className="h-5 w-5" />;
+      case 'twitter':
+        return <FiTwitter className="h-5 w-5" />;
       default:
         return null;
     }
@@ -34,10 +33,10 @@ export default function SignIn() {
     switch (providerId) {
       case 'google':
         return 'bg-red-600 hover:bg-red-700';
-      case 'facebook':
-        return 'bg-blue-600 hover:bg-blue-700';
       case 'github':
         return 'bg-gray-800 hover:bg-gray-900';
+      case 'twitter':
+        return 'bg-blue-500 hover:bg-blue-600';
       default:
         return 'bg-gray-600 hover:bg-gray-700';
     }
@@ -47,10 +46,10 @@ export default function SignIn() {
     switch (providerId) {
       case 'google':
         return 'Google';
-      case 'facebook':
-        return 'Facebook';
       case 'github':
         return 'GitHub';
+      case 'twitter':
+        return 'X (Twitter)';
       default:
         return providerId;
     }

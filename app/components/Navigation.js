@@ -5,13 +5,18 @@ import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { useSession, signOut } from 'next-auth/react';
 import { FiHome, FiSettings, FiTarget, FiLogOut, FiUser } from 'react-icons/fi';
+import SessionDebug from './SessionDebug';
 
 export default function Navigation() {
   const pathname = usePathname();
   const { data: session, status } = useSession();
 
+  console.log('Navigation render:', { session, status }); // 添加調試日誌
+
   return (
-    <nav className="bg-white shadow-sm border-b">
+    <>
+      <SessionDebug />
+      <nav className="bg-white shadow-sm border-b">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
           <div className="flex items-center">
@@ -112,5 +117,6 @@ export default function Navigation() {
         </div>
       </div>
     </nav>
+    </>
   );
 }
