@@ -70,8 +70,9 @@ https://developer.twitter.com/en/portal/dashboard
    ```
 
 2. **訪問登入頁面**：
+
    ```
-   http://localhost:3001/auth/signin
+   http://localhost:3000/auth/signin
    ```
 
 3. **測試各個 OAuth 提供者**

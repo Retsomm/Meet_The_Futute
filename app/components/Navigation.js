@@ -6,7 +6,6 @@ import { usePathname } from 'next/navigation';
 import { useSession, signOut } from 'next-auth/react';
 import { FiHome, FiSettings, FiTarget, FiLogOut, FiUser, FiMenu, FiX } from 'react-icons/fi';
 import { useState } from 'react';
-import SessionDebug from './SessionDebug';
 
 export default function Navigation() {
   const pathname = usePathname();
@@ -17,15 +16,14 @@ export default function Navigation() {
 
   return (
     <>
-      <SessionDebug />
       <nav className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
             <div className="flex items-center">
               <div className="flex-shrink-0 flex items-center">
-                <FiTarget className="h-8 w-8 text-blue-600" />
+                
                 <span className="ml-2 text-xl font-bold text-gray-900">
-                  個人成長管理
+                  Meet The Future
                 </span>
               </div>
             </div>

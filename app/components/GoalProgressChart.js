@@ -2,10 +2,24 @@
 
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { calculateGoalProgress } from '../../lib/types';
+import { useState, useEffect } from 'react';
 
 const COLORS = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#F97316'];
 
 export default function GoalProgressChart({ goals }) {
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkScreenSize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    
+    checkScreenSize();
+    window.addEventListener('resize', checkScreenSize);
+    
+    return () => window.removeEventListener('resize', checkScreenSize);
+  }, []);
+
   if (!goals || goals.length === 0) {
     return (
       <div className="text-center py-8 text-gray-500">
@@ -91,16 +105,16 @@ export default function GoalProgressChart({ goals }) {
       {pieData.length > 0 && (
         <div>
           <h3 className="text-lg font-medium text-gray-900 mb-4">目標狀態分布</h3>
-          <div className="h-64">
+          <div className="h-80 md:h-64">
             <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
+              <PieChart margin={{ top: 20, right: 20, bottom: 20, left: 20 }}>
                 <Pie
                   data={pieData}
                   cx="50%"
                   cy="50%"
                   labelLine={false}
-                  label={({ name, value, percent }) => `${name}: ${value} (${(percent * 100).toFixed(0)}%)`}
-                  outerRadius={80}
+                  label={isMobile ? false : ({ name, value, percent }) => `${name}: ${value} (${(percent * 100).toFixed(0)}%)`}
+                  outerRadius={isMobile ? "35%" : "45%"}
                   fill="#8884d8"
                   dataKey="value"
                 >
@@ -113,6 +127,21 @@ export default function GoalProgressChart({ goals }) {
                 />
               </PieChart>
             </ResponsiveContainer>
+          </div>
+          
+          {/* 手機模式下的圖例 */}
+          <div className="flex flex-wrap justify-center gap-4 mt-4 md:hidden">
+            {pieData.map((entry, index) => (
+              <div key={index} className="flex items-center space-x-2">
+                <div 
+                  className="w-3 h-3 rounded-full"
+                  style={{ backgroundColor: entry.color }}
+                ></div>
+                <span className="text-sm text-gray-600">
+                  {entry.name}: {entry.value}
+                </span>
+              </div>
+            ))}
           </div>
         </div>
       )}

@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
-  title: "個人成長目標管理系統",
+  title: "Meet The Future",
   description: "追蹤你與未來自己的差距，量化你的成長進度",
 };
 

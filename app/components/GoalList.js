@@ -132,7 +132,7 @@ export default function GoalList({ goals, onEdit, onDelete, onToggleSubGoal }) {
               <div className="space-y-2">
                 {goal.subGoals.map((subGoal, index) => (
                   <div
-                    key={subGoal.id}
+                    key={subGoal.id || `subgoal-${goal.id}-${index}`}
                     className={`flex items-start space-x-3 p-3 rounded-md border ${
                       subGoal.isCompleted 
                         ? 'bg-green-50 border-green-200' 

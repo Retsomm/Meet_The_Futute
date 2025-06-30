@@ -39,8 +39,11 @@ export default function AdminPage() {
         goalData.subGoalCount
       );
       
-      // 更新子目標資訊
-      newGoal.subGoals = goalData.subGoals;
+      // 更新子目標資訊，確保每個子目標都有 id
+      newGoal.subGoals = goalData.subGoals.map((subGoal, index) => ({
+        ...subGoal,
+        id: subGoal.id || Date.now().toString() + Math.random().toString(36).substr(2, 9) + index
+      }));
       newGoal.currentSelfDescription = goalData.currentSelfDescription;
       newGoal.futureSelfDescription = goalData.futureSelfDescription;
       

@@ -9,8 +9,24 @@ export default function GoalForm({ goal, onSave, onCancel }) {
     description: '',
     currentSelfDescription: '',
     futureSelfDescription: '',
-    subGoals: [{ title: '子目標 1', description: '', isCompleted: false }]
+    subGoals: [{ title: '子目標 1', description: '', isCompleted: false, dueDate: '', tempId: `temp-${Date.now()}-${Math.random()}` }]
   });
+
+  // 獲取今天的日期作為最小值
+  const getTodayDate = () => {
+    const today = new Date();
+    return today.toISOString().split('T')[0];
+  };
+
+  // 計算距離到期日的天數
+  const getDaysUntilDue = (dueDate) => {
+    if (!dueDate) return null;
+    const today = new Date();
+    const due = new Date(dueDate);
+    const diffTime = due - today;
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays;
+  };
 
   useEffect(() => {
     if (goal) {
@@ -23,7 +39,9 @@ export default function GoalForm({ goal, onSave, onCancel }) {
           title: sg.title,
           description: sg.description,
           isCompleted: sg.isCompleted,
-          id: sg.id
+          dueDate: sg.dueDate || '',
+          id: sg.id,
+          tempId: sg.id || `temp-${Date.now()}-${Math.random()}`
         }))
       });
     }
@@ -53,7 +71,9 @@ export default function GoalForm({ goal, onSave, onCancel }) {
         {
           title: `子目標 ${prev.subGoals.length + 1}`,
           description: '',
-          isCompleted: false
+          isCompleted: false,
+          dueDate: '',
+          tempId: `temp-${Date.now()}-${Math.random()}`
         }
       ]
     }));
@@ -106,7 +126,7 @@ export default function GoalForm({ goal, onSave, onCancel }) {
               type="text"
               value={formData.title}
               onChange={(e) => handleInputChange('title', e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 bg-white"
               placeholder="輸入你的目標標題"
               required
             />
@@ -120,7 +140,7 @@ export default function GoalForm({ goal, onSave, onCancel }) {
               value={formData.description}
               onChange={(e) => handleInputChange('description', e.target.value)}
               rows={3}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 bg-white"
               placeholder="描述這個目標的詳細內容"
             />
           </div>
@@ -136,7 +156,7 @@ export default function GoalForm({ goal, onSave, onCancel }) {
               value={formData.currentSelfDescription}
               onChange={(e) => handleInputChange('currentSelfDescription', e.target.value)}
               rows={4}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 bg-white"
               placeholder="描述你目前的狀態，作為起點"
             />
           </div>
@@ -149,7 +169,7 @@ export default function GoalForm({ goal, onSave, onCancel }) {
               value={formData.futureSelfDescription}
               onChange={(e) => handleInputChange('futureSelfDescription', e.target.value)}
               rows={4}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 bg-white"
               placeholder="描述你理想中的狀態，作為目標"
             />
           </div>
@@ -173,7 +193,7 @@ export default function GoalForm({ goal, onSave, onCancel }) {
 
           <div className="space-y-4">
             {formData.subGoals.map((subGoal, index) => (
-              <div key={index} className="border border-gray-200 rounded-md p-4">
+              <div key={subGoal.id || subGoal.tempId || `subgoal-${index}`} className="border border-gray-200 rounded-md p-4">
                 <div className="flex justify-between items-start mb-3">
                   <h4 className="text-sm font-medium text-gray-900">
                     子目標 {index + 1}
@@ -195,7 +215,7 @@ export default function GoalForm({ goal, onSave, onCancel }) {
                       type="text"
                       value={subGoal.title}
                       onChange={(e) => handleSubGoalChange(index, 'title', e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 bg-white"
                       placeholder="子目標標題"
                       required
                     />
@@ -206,9 +226,36 @@ export default function GoalForm({ goal, onSave, onCancel }) {
                       value={subGoal.description}
                       onChange={(e) => handleSubGoalChange(index, 'description', e.target.value)}
                       rows={2}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 bg-white"
                       placeholder="子目標描述"
                     />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      目標到期日
+                    </label>
+                    <input
+                      type="date"
+                      value={subGoal.dueDate}
+                      onChange={(e) => handleSubGoalChange(index, 'dueDate', e.target.value)}
+                      min={getTodayDate()}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 bg-white"
+                    />
+                    {subGoal.dueDate && (
+                      <div className="mt-1 text-xs text-gray-500">
+                        {(() => {
+                          const daysLeft = getDaysUntilDue(subGoal.dueDate);
+                          if (daysLeft > 0) {
+                            return `還有 ${daysLeft} 天`;
+                          } else if (daysLeft === 0) {
+                            return '今天到期';
+                          } else {
+                            return `已過期 ${Math.abs(daysLeft)} 天`;
+                          }
+                        })()}
+                      </div>
+                    )}
                   </div>
 
                   {goal && (

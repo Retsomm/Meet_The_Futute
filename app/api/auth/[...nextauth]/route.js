@@ -43,8 +43,7 @@ const providers = [
         TwitterProvider({
           clientId: process.env.TWITTER_CLIENT_ID,
           clientSecret: process.env.TWITTER_CLIENT_SECRET,
-          // 嘗試使用 OAuth 1.0a（更穩定）
-          version: "1.0A",
+          version: "2.0", // 明確指定使用 OAuth 2.0
         }),
       ]
     : []),
@@ -62,6 +61,10 @@ export const authOptions = {
       if (account && user) {
         token.accessToken = account.access_token
         token.userId = user.id
+        // Debug Twitter OAuth
+        if (account.provider === 'twitter') {
+          console.log('Twitter OAuth Success:', { userId: user.id, username: user.name });
+        }
       }
       return token
     },
@@ -69,6 +72,17 @@ export const authOptions = {
       session.accessToken = token.accessToken
       session.userId = token.userId
       return session
+    },
+    async signIn({ user, account, profile }) {
+      // Debug OAuth sign in
+      if (process.env.NODE_ENV === 'development') {
+        console.log('Sign in attempt:', {
+          provider: account?.provider,
+          userId: user?.id,
+          userName: user?.name,
+        });
+      }
+      return true;
     },
   },
   pages: {
@@ -84,14 +98,4 @@ export const authOptions = {
 
 const handler = NextAuth(authOptions);
 
-// Add error handling wrapper
-const wrappedHandler = async (req, res) => {
-  try {
-    return await handler(req, res);
-  } catch (error) {
-    console.error('NextAuth error:', error);
-    throw error;
-  }
-};
-
-export { wrappedHandler as GET, wrappedHandler as POST };
+export { handler as GET, handler as POST };

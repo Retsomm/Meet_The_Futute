@@ -1,11 +1,80 @@
 'use client';
 
 import Link from 'next/link';
+import { useEffect, useRef } from 'react';
 import { FiArrowLeft, FiTarget, FiTrendingUp, FiHeart, FiUsers, FiClock, FiStar } from 'react-icons/fi';
+import { gsap } from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+// 註冊GSAP插件
+if (typeof window !== 'undefined') {
+  gsap.registerPlugin(ScrollTrigger);
+}
 
 export default function AboutPage() {
+  const heroRef = useRef(null);
+  const sectionsRef = useRef([]);
+
+  useEffect(() => {
+    // 清理之前的ScrollTrigger實例
+    ScrollTrigger.getAll().forEach(trigger => trigger.kill());
+
+    // 頁面載入動畫
+    const tl = gsap.timeline();
+    
+    // Hero section 動畫
+    tl.fromTo(heroRef.current, 
+      { opacity: 0, y: 50 },
+      { opacity: 1, y: 0, duration: 1, ease: "power2.out" }
+    );
+
+    // 為每個section添加滾動觸發動畫
+    sectionsRef.current.forEach((section, index) => {
+      if (section) {
+        gsap.fromTo(section,
+          { opacity: 0, y: 80 },
+          {
+            opacity: 1,
+            y: 0,
+            duration: 0.8,
+            ease: "power2.out",
+            scrollTrigger: {
+              trigger: section,
+              start: "top 80%",
+              end: "bottom 20%",
+              toggleActions: "play none none reverse"
+            }
+          }
+        );
+      }
+    });
+
+    // 卡片懸浮動畫
+    const cards = document.querySelectorAll('.hover-card');
+    cards.forEach(card => {
+      gsap.set(card, { transformOrigin: "center center" });
+      
+      card.addEventListener('mouseenter', () => {
+        gsap.to(card, { scale: 1.05, duration: 0.3, ease: "power2.out" });
+      });
+      
+      card.addEventListener('mouseleave', () => {
+        gsap.to(card, { scale: 1, duration: 0.3, ease: "power2.out" });
+      });
+    });
+
+    return () => {
+      ScrollTrigger.getAll().forEach(trigger => trigger.kill());
+    };
+  }, []);
+
+  const addToRefs = (el) => {
+    if (el && !sectionsRef.current.includes(el)) {
+      sectionsRef.current.push(el);
+    }
+  };
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-800">
+    <div className="min-h-screen bg-gradient-to-br from-cyan-900 via-blue-900 to-teal-800">
       {/* 返回按鈕 */}
       <div className="pt-8 px-4">
         <div className="max-w-4xl mx-auto">
@@ -22,10 +91,10 @@ export default function AboutPage() {
       <div className="py-16 px-4">
         <div className="max-w-4xl mx-auto">
           {/* 標題 */}
-          <div className="text-center mb-16">
+          <div ref={heroRef} className="text-center mb-16">
             <h1 className="text-4xl md:text-6xl font-bold text-white mb-6">
               關於
-              <span className="bg-gradient-to-r from-pink-400 to-yellow-400 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-cyan-400 to-teal-400 bg-clip-text text-transparent">
                 未來自我延續性
               </span>
             </h1>
@@ -35,12 +104,12 @@ export default function AboutPage() {
           </div>
 
           {/* 核心概念 */}
-          <section className="mb-16">
-            <div className="bg-white/10 backdrop-blur border border-white/20 rounded-2xl p-8 md:p-12">
+          <section ref={addToRefs} className="mb-16">
+            <div className="hover-card bg-white/10 backdrop-blur border border-white/20 rounded-2xl p-8 md:p-12">
               <h2 className="text-3xl font-bold text-white mb-8 text-center">核心理念</h2>
               
               <div className="space-y-8">
-                <div className="border-l-4 border-pink-400 pl-6">
+                <div className="border-l-4 border-cyan-400 pl-6">
                   <h3 className="text-xl font-semibold text-white mb-3">陌生人效應</h3>
                   <p className="text-gray-200 leading-relaxed">
                     當我們把未來的自己視為陌生人時，就容易把困難的工作推給「未來的自己」處理。
@@ -48,7 +117,7 @@ export default function AboutPage() {
                   </p>
                 </div>
 
-                <div className="border-l-4 border-purple-400 pl-6">
+                <div className="border-l-4 border-blue-400 pl-6">
                   <h3 className="text-xl font-semibold text-white mb-3">生產力激勵</h3>
                   <p className="text-gray-200 leading-relaxed">
                     研究證實，只要把未來的自己想像成更好、更具生產力的版本，
@@ -56,7 +125,7 @@ export default function AboutPage() {
                   </p>
                 </div>
 
-                <div className="border-l-4 border-blue-400 pl-6">
+                <div className="border-l-4 border-teal-400 pl-6">
                   <h3 className="text-xl font-semibold text-white mb-3">公平性原則</h3>
                   <p className="text-gray-200 leading-relaxed">
                     當我們拖延或浪費時間時，實際上是對未來的自己不公平。
@@ -68,8 +137,8 @@ export default function AboutPage() {
           </section>
 
           {/* 未來自我延續性量表 */}
-          <section className="mb-16">
-            <div className="bg-white/10 backdrop-blur border border-white/20 rounded-2xl p-8 md:p-12">
+          <section ref={addToRefs} className="mb-16">
+            <div className="hover-card bg-white/10 backdrop-blur border border-white/20 rounded-2xl p-8 md:p-12">
               <h2 className="text-3xl font-bold text-white mb-8 text-center">
                 未來自我延續性測評
               </h2>
@@ -105,7 +174,7 @@ export default function AboutPage() {
                   </p>
                 </div>
 
-                <div className="bg-gradient-to-r from-green-900/30 to-blue-900/30 border border-green-400/20 rounded-xl p-6">
+                <div className="bg-gradient-to-r from-green-900/30 to-cyan-900/30 border border-green-400/20 rounded-xl p-6">
                   <div className="flex items-center mb-4">
                     <div className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center mr-4">
                       <FiStar className="h-6 w-6 text-white" />
@@ -122,8 +191,8 @@ export default function AboutPage() {
           </section>
 
           {/* 系統如何幫助你 */}
-          <section className="mb-16">
-            <div className="bg-white/10 backdrop-blur border border-white/20 rounded-2xl p-8 md:p-12">
+          <section ref={addToRefs} className="mb-16">
+            <div className="hover-card bg-white/10 backdrop-blur border border-white/20 rounded-2xl p-8 md:p-12">
               <h2 className="text-3xl font-bold text-white mb-8 text-center">
                 系統如何幫助你建立連結
               </h2>
@@ -131,7 +200,7 @@ export default function AboutPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div className="space-y-6">
                   <div className="flex items-start">
-                    <div className="w-12 h-12 bg-gradient-to-r from-pink-400 to-purple-500 rounded-lg flex items-center justify-center mr-4 flex-shrink-0">
+                    <div className="w-12 h-12 bg-gradient-to-r from-cyan-400 to-blue-500 rounded-lg flex items-center justify-center mr-4 flex-shrink-0">
                       <FiTarget className="h-6 w-6 text-white" />
                     </div>
                     <div>
@@ -143,7 +212,7 @@ export default function AboutPage() {
                   </div>
 
                   <div className="flex items-start">
-                    <div className="w-12 h-12 bg-gradient-to-r from-blue-400 to-cyan-500 rounded-lg flex items-center justify-center mr-4 flex-shrink-0">
+                    <div className="w-12 h-12 bg-gradient-to-r from-blue-400 to-teal-500 rounded-lg flex items-center justify-center mr-4 flex-shrink-0">
                       <FiTrendingUp className="h-6 w-6 text-white" />
                     </div>
                     <div>
@@ -157,7 +226,7 @@ export default function AboutPage() {
 
                 <div className="space-y-6">
                   <div className="flex items-start">
-                    <div className="w-12 h-12 bg-gradient-to-r from-green-400 to-blue-500 rounded-lg flex items-center justify-center mr-4 flex-shrink-0">
+                    <div className="w-12 h-12 bg-gradient-to-r from-teal-400 to-cyan-500 rounded-lg flex items-center justify-center mr-4 flex-shrink-0">
                       <FiHeart className="h-6 w-6 text-white" />
                     </div>
                     <div>
@@ -169,7 +238,7 @@ export default function AboutPage() {
                   </div>
 
                   <div className="flex items-start">
-                    <div className="w-12 h-12 bg-gradient-to-r from-purple-400 to-pink-500 rounded-lg flex items-center justify-center mr-4 flex-shrink-0">
+                    <div className="w-12 h-12 bg-gradient-to-r from-cyan-400 to-blue-500 rounded-lg flex items-center justify-center mr-4 flex-shrink-0">
                       <FiUsers className="h-6 w-6 text-white" />
                     </div>
                     <div>
@@ -185,8 +254,8 @@ export default function AboutPage() {
           </section>
 
           {/* 預期效果 */}
-          <section className="mb-16">
-            <div className="bg-gradient-to-r from-pink-900/30 to-purple-900/30 border border-pink-400/20 rounded-2xl p-8 md:p-12">
+          <section ref={addToRefs} className="mb-16">
+            <div className="bg-gradient-to-r from-cyan-900/30 to-blue-900/30 border border-cyan-400/20 rounded-2xl p-8 md:p-12">
               <h2 className="text-3xl font-bold text-white mb-8 text-center">預期效果</h2>
               
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -201,7 +270,7 @@ export default function AboutPage() {
                 </div>
 
                 <div className="text-center">
-                  <div className="w-16 h-16 bg-gradient-to-r from-blue-400 to-purple-500 rounded-full mx-auto mb-4 flex items-center justify-center">
+                  <div className="w-16 h-16 bg-gradient-to-r from-cyan-400 to-blue-500 rounded-full mx-auto mb-4 flex items-center justify-center">
                     <FiTrendingUp className="h-8 w-8 text-white" />
                   </div>
                   <h3 className="text-xl font-bold text-white mb-2">提高生產力</h3>
@@ -211,7 +280,7 @@ export default function AboutPage() {
                 </div>
 
                 <div className="text-center">
-                  <div className="w-16 h-16 bg-gradient-to-r from-green-400 to-blue-500 rounded-full mx-auto mb-4 flex items-center justify-center">
+                  <div className="w-16 h-16 bg-gradient-to-r from-teal-400 to-cyan-500 rounded-full mx-auto mb-4 flex items-center justify-center">
                     <FiStar className="h-8 w-8 text-white" />
                   </div>
                   <h3 className="text-xl font-bold text-white mb-2">加速成長</h3>
@@ -224,13 +293,13 @@ export default function AboutPage() {
           </section>
 
           {/* CTA */}
-          <div className="text-center">
+          <div ref={addToRefs} className="text-center">
             <h2 className="text-3xl font-bold text-white mb-6">
               準備好與未來的自己建立連結了嗎？
             </h2>
             <Link
               href="/dashboard"
-              className="inline-flex items-center px-8 py-4 bg-gradient-to-r from-pink-500 to-purple-600 text-white font-semibold rounded-full hover:from-pink-600 hover:to-purple-700 transition-all transform hover:scale-105 shadow-lg"
+              className="inline-flex items-center px-8 py-4 bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-semibold rounded-full hover:from-cyan-600 hover:to-blue-700 transition-all transform hover:scale-105 shadow-lg"
             >
               <FiTarget className="mr-2 h-5 w-5" />
               開始你的成長之旅

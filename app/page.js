@@ -1,23 +1,91 @@
 'use client';
 
 import Link from 'next/link';
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useSession } from 'next-auth/react';
 import { FiUser, FiTarget, FiTrendingUp, FiArrowRight, FiHeart, FiClock, FiStar, FiUsers } from 'react-icons/fi';
+import { gsap } from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+// 註冊GSAP插件
+if (typeof window !== 'undefined') {
+  gsap.registerPlugin(ScrollTrigger);
+}
 
 export default function Home() {
   const [currentTab, setCurrentTab] = useState('present');
   const { data: session } = useSession();
+  const heroRef = useRef(null);
+  const sectionsRef = useRef([]);
+
+  useEffect(() => {
+    // 清理之前的ScrollTrigger實例
+    ScrollTrigger.getAll().forEach(trigger => trigger.kill());
+
+    // 頁面載入動畫
+    const tl = gsap.timeline();
+    
+    // Hero section 動畫
+    tl.fromTo(heroRef.current, 
+      { opacity: 0, y: 50 },
+      { opacity: 1, y: 0, duration: 1, ease: "power2.out" }
+    );
+
+    // 為每個section添加滾動觸發動畫
+    sectionsRef.current.forEach((section, index) => {
+      if (section) {
+        gsap.fromTo(section,
+          { opacity: 0, y: 80 },
+          {
+            opacity: 1,
+            y: 0,
+            duration: 0.8,
+            ease: "power2.out",
+            scrollTrigger: {
+              trigger: section,
+              start: "top 80%",
+              end: "bottom 20%",
+              toggleActions: "play none none reverse"
+            }
+          }
+        );
+      }
+    });
+
+    // 卡片懸浮動畫
+    const cards = document.querySelectorAll('.hover-card');
+    cards.forEach(card => {
+      gsap.set(card, { transformOrigin: "center center" });
+      
+      card.addEventListener('mouseenter', () => {
+        gsap.to(card, { scale: 1.05, duration: 0.3, ease: "power2.out" });
+      });
+      
+      card.addEventListener('mouseleave', () => {
+        gsap.to(card, { scale: 1, duration: 0.3, ease: "power2.out" });
+      });
+    });
+
+    return () => {
+      ScrollTrigger.getAll().forEach(trigger => trigger.kill());
+    };
+  }, []);
+
+  const addToRefs = (el) => {
+    if (el && !sectionsRef.current.includes(el)) {
+      sectionsRef.current.push(el);
+    }
+  };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-800">
+    <div className="min-h-screen bg-gradient-to-br from-cyan-900 via-blue-900 to-teal-800">
       {/* Hero Section */}
-      <section className="relative py-20 px-4">
+      <section ref={heroRef} className="relative py-20 px-4">
         <div className="max-w-7xl mx-auto text-center">
           <div className="mb-8">
             <h1 className="text-5xl md:text-7xl font-bold text-white mb-6 leading-tight">
               遇見未來的
-              <span className="bg-gradient-to-r from-pink-400 to-yellow-400 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-cyan-400 to-teal-400 bg-clip-text text-transparent">
                 自己
               </span>
             </h1>
@@ -30,7 +98,7 @@ export default function Home() {
             {session ? (
               <Link
                 href="/dashboard"
-                className="inline-flex items-center px-8 py-4 bg-gradient-to-r from-pink-500 to-purple-600 text-white font-semibold rounded-full hover:from-pink-600 hover:to-purple-700 transition-all transform hover:scale-105 shadow-lg"
+                className="inline-flex items-center px-8 py-4 bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-semibold rounded-full hover:from-cyan-600 hover:to-blue-700 transition-all transform hover:scale-105 shadow-lg"
               >
                 <FiTarget className="mr-2 h-5 w-5" />
                 查看我的目標
@@ -39,7 +107,7 @@ export default function Home() {
             ) : (
               <Link
                 href="/auth/signin"
-                className="inline-flex items-center px-8 py-4 bg-gradient-to-r from-pink-500 to-purple-600 text-white font-semibold rounded-full hover:from-pink-600 hover:to-purple-700 transition-all transform hover:scale-105 shadow-lg"
+                className="inline-flex items-center px-8 py-4 bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-semibold rounded-full hover:from-cyan-600 hover:to-blue-700 transition-all transform hover:scale-105 shadow-lg"
               >
                 <FiUser className="mr-2 h-5 w-5" />
                 立即開始
@@ -56,8 +124,8 @@ export default function Home() {
 
           {/* 核心理念卡片 */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-6xl mx-auto">
-            <div className="bg-white/10 backdrop-blur border border-white/20 rounded-2xl p-8 text-left">
-              <div className="w-12 h-12 bg-gradient-to-r from-blue-400 to-purple-500 rounded-lg flex items-center justify-center mb-6">
+            <div className="hover-card bg-white/10 backdrop-blur border border-white/20 rounded-2xl p-8 text-left">
+              <div className="w-12 h-12 bg-gradient-to-r from-cyan-400 to-blue-500 rounded-lg flex items-center justify-center mb-6">
                 <FiUser className="h-6 w-6 text-white" />
               </div>
               <h3 className="text-2xl font-bold text-white mb-4">現在的自己</h3>
@@ -66,8 +134,8 @@ export default function Home() {
               </p>
             </div>
 
-            <div className="bg-white/10 backdrop-blur border border-white/20 rounded-2xl p-8 text-left">
-              <div className="w-12 h-12 bg-gradient-to-r from-pink-400 to-red-500 rounded-lg flex items-center justify-center mb-6">
+            <div className="hover-card bg-white/10 backdrop-blur border border-white/20 rounded-2xl p-8 text-left">
+              <div className="w-12 h-12 bg-gradient-to-r from-teal-400 to-cyan-500 rounded-lg flex items-center justify-center mb-6">
                 <FiStar className="h-6 w-6 text-white" />
               </div>
               <h3 className="text-2xl font-bold text-white mb-4">未來的自己</h3>
@@ -80,20 +148,20 @@ export default function Home() {
       </section>
 
       {/* 引言區塊 */}
-      <section className="py-16 px-4 bg-white/5 backdrop-blur">
+      <section ref={addToRefs} className="py-16 px-4 bg-white/5 backdrop-blur">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">核心理念</h2>
-            <div className="w-24 h-1 bg-gradient-to-r from-pink-400 to-yellow-400 mx-auto rounded-full"></div>
+            <div className="w-24 h-1 bg-gradient-to-r from-cyan-400 to-teal-400 mx-auto rounded-full"></div>
           </div>
 
-          <div className="bg-white/10 backdrop-blur border border-white/20 rounded-2xl p-8 md:p-12">
+          <div className="hover-card bg-white/10 backdrop-blur border border-white/20 rounded-2xl p-8 md:p-12">
             <blockquote className="text-lg md:text-xl text-gray-200 leading-relaxed italic text-center">
               「你愈是把自己視為陌生人，你就愈有可能把相當於給陌生人的工作份量，丟給未來的自己；
               你也就愈有可能把事情拖到明天──留給未來的自己去做。」
             </blockquote>
             
-            <div className="mt-8 p-6 bg-gradient-to-r from-blue-900/30 to-purple-900/30 rounded-xl border border-blue-400/20">
+            <div className="mt-8 p-6 bg-gradient-to-r from-cyan-900/30 to-blue-900/30 rounded-xl border border-cyan-400/20">
               <p className="text-gray-200 leading-relaxed">
                 <strong className="text-white">研究證實：</strong>
                 你只需把未來的自己想像成更好的、更具生產力的版本，就足以激勵現在的你做出對未來自己有益的行為。
@@ -105,7 +173,7 @@ export default function Home() {
       </section>
 
       {/* 未來自我延續性概念 */}
-      <section className="py-16 px-4">
+      <section ref={addToRefs} className="py-16 px-4">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">未來自我延續性</h2>
@@ -114,14 +182,14 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="bg-white/10 backdrop-blur border border-white/20 rounded-2xl p-8">
+          <div className="hover-card bg-white/10 backdrop-blur border border-white/20 rounded-2xl p-8">
             <div className="mb-8">
               <div className="flex justify-center space-x-4 mb-6">
                 <button
                   onClick={() => setCurrentTab('present')}
                   className={`px-6 py-3 rounded-full transition-all ${
                     currentTab === 'present'
-                      ? 'bg-gradient-to-r from-pink-500 to-purple-600 text-white'
+                      ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white'
                       : 'bg-white/10 text-gray-200 hover:bg-white/20'
                   }`}
                 >
@@ -131,7 +199,7 @@ export default function Home() {
                   onClick={() => setCurrentTab('future')}
                   className={`px-6 py-3 rounded-full transition-all ${
                     currentTab === 'future'
-                      ? 'bg-gradient-to-r from-pink-500 to-purple-600 text-white'
+                      ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white'
                       : 'bg-white/10 text-gray-200 hover:bg-white/20'
                   }`}
                 >
@@ -156,15 +224,15 @@ export default function Home() {
                     <h4 className="text-xl font-semibold text-white">特徵：</h4>
                     <ul className="space-y-3 text-gray-200">
                       <li className="flex items-start">
-                        <FiClock className="h-5 w-5 mt-1 mr-3 text-pink-400" />
+                        <FiClock className="h-5 w-5 mt-1 mr-3 text-cyan-400" />
                         容易拖延，傾向把任務留給「未來的自己」
                       </li>
                       <li className="flex items-start">
-                        <FiUser className="h-5 w-5 mt-1 mr-3 text-pink-400" />
+                        <FiUser className="h-5 w-5 mt-1 mr-3 text-cyan-400" />
                         對未來自己缺乏連結感，視為「陌生人」
                       </li>
                       <li className="flex items-start">
-                        <FiTarget className="h-5 w-5 mt-1 mr-3 text-pink-400" />
+                        <FiTarget className="h-5 w-5 mt-1 mr-3 text-cyan-400" />
                         缺乏明確的長期目標和行動計畫
                       </li>
                     </ul>
@@ -173,7 +241,7 @@ export default function Home() {
               ) : (
                 <>
                   <div className="text-center">
-                    <div className="w-32 h-32 bg-gradient-to-r from-pink-400 to-purple-600 rounded-full mx-auto mb-6 flex items-center justify-center">
+                    <div className="w-32 h-32 bg-gradient-to-r from-cyan-400 to-blue-600 rounded-full mx-auto mb-6 flex items-center justify-center">
                       <FiStar className="h-16 w-16 text-white" />
                     </div>
                     <h3 className="text-2xl font-bold text-white mb-4">未來的自己</h3>
@@ -185,15 +253,15 @@ export default function Home() {
                     <h4 className="text-xl font-semibold text-white">特徵：</h4>
                     <ul className="space-y-3 text-gray-200">
                       <li className="flex items-start">
-                        <FiTrendingUp className="h-5 w-5 mt-1 mr-3 text-pink-400" />
+                        <FiTrendingUp className="h-5 w-5 mt-1 mr-3 text-cyan-400" />
                         更高的能力和專業技能
                       </li>
                       <li className="flex items-start">
-                        <FiHeart className="h-5 w-5 mt-1 mr-3 text-pink-400" />
+                        <FiHeart className="h-5 w-5 mt-1 mr-3 text-cyan-400" />
                         更好的生活品質和人際關係
                       </li>
                       <li className="flex items-start">
-                        <FiTarget className="h-5 w-5 mt-1 mr-3 text-pink-400" />
+                        <FiTarget className="h-5 w-5 mt-1 mr-3 text-cyan-400" />
                         達成重要的人生目標和夢想
                       </li>
                     </ul>
@@ -206,7 +274,7 @@ export default function Home() {
       </section>
 
       {/* 系統功能介紹 */}
-      <section className="py-16 px-4 bg-white/5 backdrop-blur">
+      <section ref={addToRefs} className="py-16 px-4 bg-white/5 backdrop-blur">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">系統功能</h2>
@@ -216,8 +284,8 @@ export default function Home() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="bg-white/10 backdrop-blur border border-white/20 rounded-2xl p-8 text-center">
-              <div className="w-16 h-16 bg-gradient-to-r from-blue-400 to-cyan-500 rounded-full mx-auto mb-6 flex items-center justify-center">
+            <div className="hover-card bg-white/10 backdrop-blur border border-white/20 rounded-2xl p-8 text-center">
+              <div className="w-16 h-16 bg-gradient-to-r from-cyan-400 to-blue-500 rounded-full mx-auto mb-6 flex items-center justify-center">
                 <FiTarget className="h-8 w-8 text-white" />
               </div>
               <h3 className="text-xl font-bold text-white mb-4">目標設定</h3>
@@ -226,8 +294,8 @@ export default function Home() {
               </p>
             </div>
 
-            <div className="bg-white/10 backdrop-blur border border-white/20 rounded-2xl p-8 text-center">
-              <div className="w-16 h-16 bg-gradient-to-r from-purple-400 to-pink-500 rounded-full mx-auto mb-6 flex items-center justify-center">
+            <div className="hover-card bg-white/10 backdrop-blur border border-white/20 rounded-2xl p-8 text-center">
+              <div className="w-16 h-16 bg-gradient-to-r from-blue-400 to-teal-500 rounded-full mx-auto mb-6 flex items-center justify-center">
                 <FiTrendingUp className="h-8 w-8 text-white" />
               </div>
               <h3 className="text-xl font-bold text-white mb-4">進度追蹤</h3>
@@ -236,8 +304,8 @@ export default function Home() {
               </p>
             </div>
 
-            <div className="bg-white/10 backdrop-blur border border-white/20 rounded-2xl p-8 text-center">
-              <div className="w-16 h-16 bg-gradient-to-r from-green-400 to-blue-500 rounded-full mx-auto mb-6 flex items-center justify-center">
+            <div className="hover-card bg-white/10 backdrop-blur border border-white/20 rounded-2xl p-8 text-center">
+              <div className="w-16 h-16 bg-gradient-to-r from-teal-400 to-cyan-500 rounded-full mx-auto mb-6 flex items-center justify-center">
                 <FiUsers className="h-8 w-8 text-white" />
               </div>
               <h3 className="text-xl font-bold text-white mb-4">自我連結</h3>
@@ -250,7 +318,7 @@ export default function Home() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-16 px-4">
+      <section ref={addToRefs} className="py-16 px-4">
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
             開始你的成長之旅
@@ -262,7 +330,7 @@ export default function Home() {
           <div className="flex flex-col md:flex-row justify-center gap-6">
             <Link
               href="/dashboard"
-              className="inline-flex items-center px-8 py-4 bg-gradient-to-r from-pink-500 to-purple-600 text-white font-semibold rounded-full hover:from-pink-600 hover:to-purple-700 transition-all transform hover:scale-105 shadow-lg"
+              className="inline-flex items-center px-8 py-4 bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-semibold rounded-full hover:from-cyan-600 hover:to-blue-700 transition-all transform hover:scale-105 shadow-lg"
             >
               <FiTarget className="mr-2 h-5 w-5" />
               立即開始
