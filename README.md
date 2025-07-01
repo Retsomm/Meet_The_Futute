@@ -36,8 +36,8 @@
 
 ## 技術架構
 
-- **前端框架**：Next.js 15.3.4 + React 19
-- **樣式系統**：Tailwind CSS 4
+- **前端框架**：Next.js 13 + React 18
+- **樣式系統**：Tailwind CSS 3
 - **圖表庫**：Recharts（柱狀圖、餅圖）
 - **圖標庫**：React Icons (Feather Icons)
 - **表單處理**：React Hook Form
