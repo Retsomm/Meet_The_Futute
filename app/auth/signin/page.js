@@ -56,13 +56,13 @@ export default function SignIn() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-800 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gradient-to-br from-cyan-900 via-blue-900 to-teal-800 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full">
         <div className="bg-white/10 backdrop-blur border border-white/20 rounded-2xl p-8">
           {/* 標題 */}
           <div className="text-center mb-8">
-            <Link href="/" className="inline-block mb-6">
-              <h1 className="text-3xl font-bold bg-gradient-to-r from-pink-400 to-yellow-400 bg-clip-text text-transparent">
+            <Link scroll={true} href="/" className="inline-block mb-6">
+              <h1 className="text-3xl font-bold bg-gradient-to-r from-cyan-400 to-teal-400 bg-clip-text text-transparent">
                 遇見未來的自己
               </h1>
             </Link>
@@ -103,8 +103,9 @@ export default function SignIn() {
           {/* 返回首頁 */}
           <div className="mt-6 text-center">
             <Link
+            scroll={true}
               href="/"
-              className="text-pink-400 hover:text-pink-300 transition-colors text-sm"
+              className="text-cyan-400 hover:text-cyan-300 transition-colors text-sm"
             >
               ← 返回首頁
             </Link>
@@ -116,15 +117,15 @@ export default function SignIn() {
           <h3 className="text-lg font-semibold text-white mb-4">為什麼需要登入？</h3>
           <ul className="space-y-2 text-sm text-gray-200">
             <li className="flex items-start">
-              <span className="text-pink-400 mr-2">•</span>
+              <span className="text-cyan-400 mr-2">•</span>
               保護你的個人目標和進度資料
             </li>
             <li className="flex items-start">
-              <span className="text-pink-400 mr-2">•</span>
+              <span className="text-cyan-400 mr-2">•</span>
               在不同裝置間同步你的成長軌跡
             </li>
             <li className="flex items-start">
-              <span className="text-pink-400 mr-2">•</span>
+              <span className="text-cyan-400 mr-2">•</span>
               確保只有你能訪問和管理你的目標
             </li>
           </ul>

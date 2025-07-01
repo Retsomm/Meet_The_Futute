@@ -1,21 +1,9 @@
 'use client';
 
 import { useSession, signIn, signOut } from 'next-auth/react';
-import { useState } from 'react';
 
 export default function TestAuthPage() {
   const { data: session, status } = useSession();
-  const [authTest, setAuthTest] = useState(null);
-
-  const testAuthConfig = async () => {
-    try {
-      const response = await fetch('/api/debug');
-      const data = await response.json();
-      setAuthTest(data);
-    } catch (error) {
-      setAuthTest({ error: error.message });
-    }
-  };
 
   return (
     <div className="min-h-screen bg-gray-100 p-8">
@@ -76,26 +64,6 @@ export default function TestAuthPage() {
               >
                 登出
               </button>
-            )}
-          </div>
-
-          {/* 配置測試 */}
-          <div className="mb-8">
-            <h2 className="text-xl font-semibold mb-4">NextAuth 配置測試</h2>
-            <button
-              onClick={testAuthConfig}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg"
-            >
-              檢查 NextAuth 配置
-            </button>
-            
-            {authTest && (
-              <div className="mt-4 p-4 bg-gray-50 rounded-lg">
-                <h3 className="font-semibold mb-2">配置測試結果:</h3>
-                <pre className="text-sm overflow-auto bg-gray-900 text-green-400 p-4 rounded">
-                  {JSON.stringify(authTest, null, 2)}
-                </pre>
-              </div>
             )}
           </div>
 

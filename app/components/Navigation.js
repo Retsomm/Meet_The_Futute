@@ -12,8 +12,6 @@ export default function Navigation() {
   const { data: session, status } = useSession();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-  console.log('Navigation render:', { session, status }); // 添加調試日誌
-
   return (
     <>
       <nav className="bg-white shadow-sm border-b">
@@ -32,6 +30,7 @@ export default function Navigation() {
             <div className="hidden md:flex items-center space-x-4">
               <div className="flex items-center space-x-8">
                 <Link
+                scroll={true}
                   href="/"
                   className={`inline-flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors ${
                     pathname === '/'
@@ -46,6 +45,7 @@ export default function Navigation() {
                 {session && (
                   <>
                     <Link
+                    scroll={true}
                       href="/dashboard"
                       className={`inline-flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors ${
                         pathname === '/dashboard'
@@ -58,6 +58,7 @@ export default function Navigation() {
                     </Link>
                     
                     <Link
+                    scroll={true}
                       href="/admin"
                       className={`inline-flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors ${
                         pathname.startsWith('/admin')
@@ -106,6 +107,7 @@ export default function Navigation() {
                   </div>
                 ) : (
                   <Link
+                  scroll={true}
                     href="/auth/signin"
                     className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md transition-colors"
                   >
@@ -139,6 +141,7 @@ export default function Navigation() {
           <div className="md:hidden">
             <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-white border-t">
               <Link
+              scroll={true}
                 href="/"
                 onClick={() => setIsMenuOpen(false)}
                 className={`block px-3 py-2 text-base font-medium rounded-md transition-colors ${
@@ -156,6 +159,7 @@ export default function Navigation() {
               {session && (
                 <>
                   <Link
+                  scroll={true}
                     href="/dashboard"
                     onClick={() => setIsMenuOpen(false)}
                     className={`block px-3 py-2 text-base font-medium rounded-md transition-colors ${
@@ -171,6 +175,7 @@ export default function Navigation() {
                   </Link>
                   
                   <Link
+                  scroll={true}
                     href="/admin"
                     onClick={() => setIsMenuOpen(false)}
                     className={`block px-3 py-2 text-base font-medium rounded-md transition-colors ${
@@ -227,6 +232,7 @@ export default function Navigation() {
                   </div>
                 ) : (
                   <Link
+                  scroll={true}
                     href="/auth/signin"
                     onClick={() => setIsMenuOpen(false)}
                     className="block px-3 py-2 text-base font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md transition-colors"

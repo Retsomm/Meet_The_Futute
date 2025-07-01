@@ -3,15 +3,18 @@
 import { useState, useEffect } from 'react';
 import { storageManager } from '../../lib/storage';
 import { calculateGoalProgress, calculateGapToFuture } from '../../lib/types';
-import { loadSampleData } from '../../data/sampleData';
+import { loadSampleData, sampleGoals } from '../../data/sampleData';
 import GoalProgressChart from '../components/GoalProgressChart';
 import PersonalComparison from '../components/PersonalComparison';
 import AuthGuard from '../components/AuthGuard';
+import { useAlert } from '../components/Alert';
 import { FiTarget, FiTrendingUp, FiUser, FiCheckCircle, FiDatabase } from 'react-icons/fi';
 
 export default function Home() {
   const [goals, setGoals] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [loadingSample, setLoadingSample] = useState(false);
+  const { showAlert } = useAlert();
 
   useEffect(() => {
     const loadGoals = () => {
@@ -23,10 +26,51 @@ export default function Home() {
     loadGoals();
   }, []);
 
-  const handleLoadSampleData = () => {
-    const sampleData = loadSampleData();
-    if (sampleData) {
-      setGoals(sampleData);
+  const handleLoadSampleData = async () => {
+    setLoadingSample(true);
+    
+    try {
+      const existingGoals = storageManager.getGoals();
+      
+      // 模擬載入延遲，讓用戶看到載入狀態
+      await new Promise(resolve => setTimeout(resolve, 800));
+      
+      // 檢查是否已經載入過範例資料（避免重複加入）
+      const hasSampleData = existingGoals.some(goal => 
+        sampleGoals.some(sample => sample.title === goal.title)
+      );
+      
+      if (hasSampleData) {
+        showAlert('範例資料已存在，無需重複載入。', 'warning');
+        setLoadingSample(false);
+        return;
+      }
+      
+      // 為範例資料生成新的 ID，避免與現有目標衝突
+      const newSampleGoals = sampleGoals.map((goal, index) => ({
+        ...goal,
+        id: `sample-${Date.now()}-${index}`,
+        subGoals: goal.subGoals.map((subGoal, subIndex) => ({
+          ...subGoal,
+          id: `sub-${Date.now()}-${index}-${subIndex}`
+        }))
+      }));
+      
+      // 將範例資料加入現有目標
+      const updatedGoals = [...existingGoals, ...newSampleGoals];
+      storageManager.saveGoals(updatedGoals);
+      setGoals(updatedGoals);
+      
+      const message = existingGoals.length > 0 
+        ? `範例資料已成功加入！新增了 ${newSampleGoals.length} 個範例目標到您現有的 ${existingGoals.length} 個目標中。`
+        : '範例資料載入成功！現在您可以體驗完整的目標追蹤功能。';
+      
+      showAlert(message, 'success', 6000);
+    } catch (error) {
+      console.error('載入範例資料時發生錯誤:', error);
+      showAlert('載入範例資料時發生錯誤，請稍後再試。', 'error');
+    } finally {
+      setLoadingSample(false);
     }
   };
 
@@ -82,10 +126,24 @@ export default function Home() {
             </a>
               <button
                 onClick={handleLoadSampleData}
-                className="inline-flex items-center px-6 py-3 border border-gray-300 text-base font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 transition-colors"
+                disabled={loadingSample}
+                className={`inline-flex items-center px-6 py-3 border border-gray-300 text-base font-medium rounded-md transition-colors ${
+                  loadingSample 
+                    ? 'text-gray-400 bg-gray-100 cursor-not-allowed' 
+                    : 'text-gray-700 bg-white hover:bg-gray-50'
+                }`}
               >
-                <FiDatabase className="mr-2 h-5 w-5" />
-                載入範例資料
+                {loadingSample ? (
+                  <>
+                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-gray-600 mr-2"></div>
+                    載入中...
+                  </>
+                ) : (
+                  <>
+                    <FiDatabase className="mr-2 h-5 w-5" />
+                    加入範例資料
+                  </>
+                )}
               </button>
             </div>
           </div>

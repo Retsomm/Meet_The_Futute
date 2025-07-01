@@ -1,9 +1,11 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useAlert } from './Alert';
 import { FiSave, FiX, FiPlus, FiMinus } from 'react-icons/fi';
 
 export default function GoalForm({ goal, onSave, onCancel }) {
+  const { showAlert } = useAlert();
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -92,12 +94,12 @@ export default function GoalForm({ goal, onSave, onCancel }) {
     e.preventDefault();
     
     if (!formData.title.trim()) {
-      alert('請輸入目標標題');
+      showAlert('請輸入目標標題', 'warning');
       return;
     }
 
     if (formData.subGoals.some(sg => !sg.title.trim())) {
-      alert('請確保所有子目標都有標題');
+      showAlert('請確保所有子目標都有標題', 'warning');
       return;
     }
 

@@ -79,6 +79,7 @@ export default function AboutPage() {
       <div className="pt-8 px-4">
         <div className="max-w-4xl mx-auto">
           <Link
+          scroll={true}
             href="/"
             className="inline-flex items-center text-white/70 hover:text-white transition-colors"
           >
@@ -88,7 +89,7 @@ export default function AboutPage() {
         </div>
       </div>
 
-      <div className="py-16 px-4">
+      <div className="py-16 px-4 pb-32">
         <div className="max-w-4xl mx-auto">
           {/* 標題 */}
           <div ref={heroRef} className="text-center mb-16">
@@ -102,6 +103,40 @@ export default function AboutPage() {
               深入了解如何與未來的自己建立更緊密的連結
             </p>
           </div>
+
+          {/* 引言 */}
+          <section ref={addToRefs} className="mb-16">
+            <div className="hover-card bg-white/10 backdrop-blur border border-white/20 rounded-2xl p-8 md:p-12">
+              <div className="text-center mb-8">
+                <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-amber-400 to-orange-500 rounded-full mb-4">
+                  <FiStar className="h-8 w-8 text-white" />
+                </div>
+                <h2 className="text-2xl font-bold text-white mb-4">靈感來源</h2>
+              </div>
+              
+              <div className="bg-gradient-to-r from-amber-900/30 to-orange-900/30 border border-amber-400/30 rounded-xl p-6 md:p-8">
+                <blockquote className="text-lg text-gray-200 leading-relaxed text-center italic mb-6">
+                  &ldquo;當我們能夠清楚地預見未來的自己時，就能夠做出更明智的決策，
+                  減少拖延，並且更有動力去實現我們的目標。&rdquo;
+                </blockquote>
+                
+                <div className="text-center">
+                  <p className="text-white font-semibold mb-2">
+                    —— 《最有生產力的一年》
+                  </p>
+                  <p className="text-gray-300 text-sm">
+                    第六章：預見未來的自己
+                  </p>
+                </div>
+              </div>
+              
+              <p className="text-gray-200 text-center mt-6 leading-relaxed">
+                這個系統的核心理念源自於克里斯·貝利在《最有生產力的一年》中提出的概念：
+                通過與未來自己建立更緊密的連結，我們可以克服拖延症，提高工作效率，
+                並為長期目標做出更好的決策。
+              </p>
+            </div>
+          </section>
 
           {/* 核心概念 */}
           <section ref={addToRefs} className="mb-16">
@@ -293,11 +328,12 @@ export default function AboutPage() {
           </section>
 
           {/* CTA */}
-          <div ref={addToRefs} className="text-center">
+          <div ref={addToRefs} className="text-center mb-16">
             <h2 className="text-3xl font-bold text-white mb-6">
               準備好與未來的自己建立連結了嗎？
             </h2>
             <Link
+            scroll={true}
               href="/dashboard"
               className="inline-flex items-center px-8 py-4 bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-semibold rounded-full hover:from-cyan-600 hover:to-blue-700 transition-all transform hover:scale-105 shadow-lg"
             >

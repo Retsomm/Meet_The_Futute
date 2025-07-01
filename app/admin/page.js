@@ -6,6 +6,7 @@ import { createNewGoal, calculateGoalProgress } from '../../lib/types';
 import GoalForm from '../components/GoalForm';
 import GoalList from '../components/GoalList';
 import AuthGuard from '../components/AuthGuard';
+import { useAlert } from '../components/Alert';
 import { FiPlus, FiTarget, FiEdit, FiTrash2 } from 'react-icons/fi';
 
 export default function AdminPage() {
@@ -13,6 +14,7 @@ export default function AdminPage() {
   const [showForm, setShowForm] = useState(false);
   const [editingGoal, setEditingGoal] = useState(null);
   const [loading, setLoading] = useState(true);
+  const { showAlert, showConfirm } = useAlert();
 
   useEffect(() => {
     loadGoals();
@@ -60,10 +62,12 @@ export default function AdminPage() {
     setShowForm(true);
   };
 
-  const handleDeleteGoal = (goalId) => {
-    if (confirm('確定要刪除這個目標嗎？')) {
+  const handleDeleteGoal = async (goalId) => {
+    const confirmed = await showConfirm('確定要刪除這個目標嗎？', '刪除目標');
+    if (confirmed) {
       storageManager.deleteGoal(goalId);
       setGoals(goals.filter(g => g.id !== goalId));
+      showAlert('目標已成功刪除', 'success');
     }
   };
 

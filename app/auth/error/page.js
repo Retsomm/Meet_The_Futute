@@ -35,12 +35,14 @@ function ErrorContent() {
           </p>
           <div className="space-y-3">
             <Link
+            scroll={true}
               href="/auth/signin"
               className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors inline-block text-center"
             >
               重新登入
             </Link>
             <Link
+            scroll={true}
               href="/"
               className="w-full bg-gray-100 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-200 transition-colors inline-flex items-center justify-center"
             >

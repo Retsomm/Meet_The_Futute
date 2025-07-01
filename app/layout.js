@@ -1,16 +1,20 @@
-import { Geist, Geist_Mono } from "next/font/google";
+import { Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import Navigation from "./components/Navigation";
 import Providers from "./components/Providers";
+import { AlertProvider } from "./components/Alert";
+import ScrollToTop from "./components/ScrollToTop";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const inter = Inter({
+  variable: "--font-inter",
   subsets: ["latin"],
+  display: "swap",
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const jetbrainsMono = JetBrains_Mono({
+  variable: "--font-jetbrains-mono",
   subsets: ["latin"],
+  display: "swap",
 });
 
 export const metadata = {
@@ -22,11 +26,15 @@ export default function RootLayout({ children }) {
   return (
     <html lang="zh-TW">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gray-50`}
+        className={`${inter.variable} ${jetbrainsMono.variable} antialiased bg-gray-50 font-sans`}
+        suppressHydrationWarning={true}
       >
         <Providers>
-          <Navigation />
-          <main className="min-h-screen">{children}</main>
+          <AlertProvider>
+            <ScrollToTop />
+            <Navigation />
+            <main className="min-h-screen">{children}</main>
+          </AlertProvider>
         </Providers>
       </body>
     </html>

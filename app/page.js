@@ -97,6 +97,7 @@ export default function Home() {
           <div className="flex flex-col md:flex-row justify-center gap-6 mb-16">
             {session ? (
               <Link
+              scroll={true}
                 href="/dashboard"
                 className="inline-flex items-center px-8 py-4 bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-semibold rounded-full hover:from-cyan-600 hover:to-blue-700 transition-all transform hover:scale-105 shadow-lg"
               >
@@ -106,6 +107,7 @@ export default function Home() {
               </Link>
             ) : (
               <Link
+              scroll={true}
                 href="/auth/signin"
                 className="inline-flex items-center px-8 py-4 bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-semibold rounded-full hover:from-cyan-600 hover:to-blue-700 transition-all transform hover:scale-105 shadow-lg"
               >
@@ -115,6 +117,7 @@ export default function Home() {
               </Link>
             )}
             <Link
+            scroll={true}
               href="/about"
               className="inline-flex items-center px-8 py-4 bg-white/10 backdrop-blur text-white font-semibold rounded-full hover:bg-white/20 transition-all border border-white/20"
             >
@@ -329,6 +332,7 @@ export default function Home() {
           
           <div className="flex flex-col md:flex-row justify-center gap-6">
             <Link
+            scroll={true}
               href="/dashboard"
               className="inline-flex items-center px-8 py-4 bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-semibold rounded-full hover:from-cyan-600 hover:to-blue-700 transition-all transform hover:scale-105 shadow-lg"
             >
@@ -337,6 +341,7 @@ export default function Home() {
               <FiArrowRight className="ml-2 h-5 w-5" />
             </Link>
             <Link
+            scroll={true}
               href="/admin"
               className="inline-flex items-center px-8 py-4 bg-white/10 backdrop-blur text-white font-semibold rounded-full hover:bg-white/20 transition-all border border-white/20"
             >
