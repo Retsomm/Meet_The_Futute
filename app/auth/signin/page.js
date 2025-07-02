@@ -56,20 +56,20 @@ export default function SignIn() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-cyan-900 via-blue-900 to-teal-800 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-cyan-900 dark:via-blue-900 dark:to-teal-800 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 transition-colors">
       <div className="max-w-md w-full">
-        <div className="bg-white/10 backdrop-blur border border-white/20 rounded-2xl p-8">
+        <div className="bg-white/80 dark:bg-white/10 backdrop-blur border border-gray-200 dark:border-white/20 rounded-2xl p-8 transition-colors">
           {/* 標題 */}
           <div className="text-center mb-8">
             <Link scroll={true} href="/" className="inline-block mb-6">
-              <h1 className="text-3xl font-bold bg-gradient-to-r from-cyan-400 to-teal-400 bg-clip-text text-transparent">
+              <h1 className="text-3xl font-bold bg-gradient-to-r from-cyan-600 to-teal-600 dark:from-cyan-400 dark:to-teal-400 bg-clip-text text-transparent">
                 遇見未來的自己
               </h1>
             </Link>
-            <h2 className="text-2xl font-bold text-white mb-2">
+            <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-2 transition-colors">
               歡迎回來
             </h2>
-            <p className="text-gray-200">
+            <p className="text-gray-600 dark:text-gray-200 transition-colors">
               登入來追蹤你的成長目標
             </p>
           </div>

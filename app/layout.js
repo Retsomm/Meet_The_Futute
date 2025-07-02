@@ -4,6 +4,7 @@ import Navigation from "./components/Navigation";
 import Providers from "./components/Providers";
 import { AlertProvider } from "./components/Alert";
 import ScrollToTop from "./components/ScrollToTop";
+import { ThemeProvider } from "./components/ThemeProvider";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -26,16 +27,18 @@ export default function RootLayout({ children }) {
   return (
     <html lang="zh-TW">
       <body
-        className={`${inter.variable} ${jetbrainsMono.variable} antialiased bg-gray-50 font-sans`}
+        className={`${inter.variable} ${jetbrainsMono.variable} antialiased bg-gray-50 dark:bg-gray-900 font-sans transition-colors`}
         suppressHydrationWarning={true}
       >
-        <Providers>
-          <AlertProvider>
-            <ScrollToTop />
-            <Navigation />
-            <main className="min-h-screen">{children}</main>
-          </AlertProvider>
-        </Providers>
+        <ThemeProvider>
+          <Providers>
+            <AlertProvider>
+              <ScrollToTop />
+              <Navigation/>
+              <main className="min-h-screen pt-16">{children}</main>
+            </AlertProvider>
+          </Providers>
+        </ThemeProvider>
       </body>
     </html>
   );

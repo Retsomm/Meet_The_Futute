@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@headlessui/react": "^2.2.4",
+    "daisyui": "^5.0.43",
     "firebase": "^11.9.1",
     "geist": "^1.4.2",
     "gsap": "^3.13.0",
@@ -18,9 +19,11 @@
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-hook-form": "^7.59.0",
+    "react-hot-toast": "^2.5.2",
     "react-icons": "^5.5.0",
     "recharts": "^3.0.2",
-    "uuid": "^11.1.0"
+    "uuid": "^11.1.0",
+    "zustand": "^5.0.6"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",

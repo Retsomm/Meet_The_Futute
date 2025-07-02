@@ -1,9 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { FiX, FiAlertCircle, FiCheckCircle, FiInfo, FiAlertTriangle } from 'react-icons/fi';
-
-// Alert Provider Context
+import { useState } from 'react';
+import toast, { Toaster } from 'react-hot-toast';
+import { FiAlertCircle } from 'react-icons/fi';
 import { createContext, useContext } from 'react';
 
 const AlertContext = createContext();
@@ -17,23 +16,26 @@ export const useAlert = () => {
 };
 
 export const AlertProvider = ({ children }) => {
-  const [alerts, setAlerts] = useState([]);
   const [confirmDialog, setConfirmDialog] = useState(null);
 
   const showAlert = (message, type = 'info', duration = 5000) => {
-    const id = Date.now() + Math.random();
-    const alert = { id, message, type, duration };
-    
-    setAlerts(prev => [...prev, alert]);
-
-    // 自動移除警告
-    if (duration > 0) {
-      setTimeout(() => {
-        removeAlert(id);
-      }, duration);
+    switch (type) {
+      case 'success':
+        return toast.success(message, { duration });
+      case 'error':
+        return toast.error(message, { duration });
+      case 'warning':
+        return toast(message, {
+          duration,
+          icon: '⚠️',
+          style: {
+            background: '#fbbf24',
+            color: '#92400e',
+          },
+        });
+      default:
+        return toast(message, { duration });
     }
-
-    return id;
   };
 
   const showConfirm = (message, title = "確認") => {
@@ -54,13 +56,53 @@ export const AlertProvider = ({ children }) => {
   };
 
   const removeAlert = (id) => {
-    setAlerts(prev => prev.filter(alert => alert.id !== id));
+    toast.dismiss(id);
   };
 
   return (
     <AlertContext.Provider value={{ showAlert, showConfirm, removeAlert }}>
       {children}
-      <AlertContainer alerts={alerts} onRemove={removeAlert} />
+      <Toaster
+        position="top-center"
+        reverseOrder={false}
+        gutter={8}
+        containerClassName=""
+        containerStyle={{}}
+        toastOptions={{
+          className: '',
+          duration: 4000,
+          style: {
+            background: '#363636',
+            color: '#fff',
+            borderRadius: '8px',
+            padding: '16px',
+            fontSize: '14px',
+            fontWeight: '500',
+            boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
+            border: '1px solid rgba(255, 255, 255, 0.1)',
+          },
+          success: {
+            style: {
+              background: '#10b981',
+              color: '#ffffff',
+            },
+            iconTheme: {
+              primary: '#ffffff',
+              secondary: '#10b981',
+            },
+          },
+          error: {
+            style: {
+              background: '#ef4444',
+              color: '#ffffff',
+            },
+            iconTheme: {
+              primary: '#ffffff',
+              secondary: '#ef4444',
+            },
+          },
+        }}
+      />
       {confirmDialog && (
         <ConfirmDialog
           isOpen={true}
@@ -74,94 +116,7 @@ export const AlertProvider = ({ children }) => {
   );
 };
 
-// Alert Container Component
-const AlertContainer = ({ alerts, onRemove }) => {
-  if (alerts.length === 0) return null;
-
-  return (
-    <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 space-y-2 w-full max-w-md px-4">
-      {alerts.map(alert => (
-        <AlertItem
-          key={alert.id}
-          alert={alert}
-          onRemove={() => onRemove(alert.id)}
-        />
-      ))}
-    </div>
-  );
-};
-
-// Individual Alert Item
-const AlertItem = ({ alert, onRemove }) => {
-  const [isVisible, setIsVisible] = useState(false);
-
-  useEffect(() => {
-    // 進入動畫
-    setTimeout(() => setIsVisible(true), 10);
-  }, []);
-
-  const handleRemove = () => {
-    setIsVisible(false);
-    // 等待退出動畫完成後移除
-    setTimeout(onRemove, 300);
-  };
-
-  const getAlertStyles = () => {
-    switch (alert.type) {
-      case 'success':
-        return {
-          bg: 'bg-green-600',
-          icon: FiCheckCircle,
-          iconColor: 'text-green-100'
-        };
-      case 'error':
-        return {
-          bg: 'bg-red-600',
-          icon: FiAlertCircle,
-          iconColor: 'text-red-100'
-        };
-      case 'warning':
-        return {
-          bg: 'bg-yellow-600',
-          icon: FiAlertTriangle,
-          iconColor: 'text-yellow-100'
-        };
-      default:
-        return {
-          bg: 'bg-blue-600',
-          icon: FiInfo,
-          iconColor: 'text-blue-100'
-        };
-    }
-  };
-
-  const { bg, icon: Icon, iconColor } = getAlertStyles();
-
-  return (
-    <div
-      className={`${bg} text-white rounded-lg shadow-lg backdrop-blur border border-white/20 transition-all duration-300 transform ${
-        isVisible 
-          ? 'translate-y-0 opacity-100 scale-100' 
-          : '-translate-y-2 opacity-0 scale-95'
-      }`}
-    >
-      <div className="flex items-center justify-between p-4">
-        <div className="flex items-center">
-          <Icon className={`h-5 w-5 mr-3 ${iconColor}`} />
-          <p className="text-sm font-medium">{alert.message}</p>
-        </div>
-        <button
-          onClick={handleRemove}
-          className="ml-4 text-white/70 hover:text-white transition-colors"
-        >
-          <FiX className="h-4 w-4" />
-        </button>
-      </div>
-    </div>
-  );
-};
-
-// Confirm Dialog Component
+// Confirm Dialog Component (保留自定義對話框)
 const ConfirmDialog = ({ isOpen, message, onConfirm, onCancel, title = "確認" }) => {
   if (!isOpen) return null;
 
@@ -203,47 +158,37 @@ const ConfirmDialog = ({ isOpen, message, onConfirm, onCancel, title = "確認" 
 
 // 便利函數，用於替換原生 alert
 export const createAlert = () => {
-  let alertContext = null;
-
   return {
-    setContext: (context) => {
-      alertContext = context;
-    },
     show: (message, type = 'info') => {
-      if (alertContext) {
-        return alertContext.showAlert(message, type);
-      } else {
-        // 後備方案，如果Context不可用則使用原生alert
-        window.alert(message);
-      }
+      return toast(message);
     },
     success: (message) => {
-      if (alertContext) {
-        return alertContext.showAlert(message, 'success');
-      } else {
-        window.alert(message);
-      }
+      return toast.success(message);
     },
     error: (message) => {
-      if (alertContext) {
-        return alertContext.showAlert(message, 'error');
-      } else {
-        window.alert(message);
-      }
+      return toast.error(message);
     },
     warning: (message) => {
-      if (alertContext) {
-        return alertContext.showAlert(message, 'warning');
-      } else {
-        window.alert(message);
-      }
+      return toast(message, {
+        icon: '⚠️',
+        style: {
+          background: '#fbbf24',
+          color: '#92400e',
+        },
+      });
     },
     info: (message) => {
-      if (alertContext) {
-        return alertContext.showAlert(message, 'info');
-      } else {
-        window.alert(message);
-      }
+      return toast(message);
+    },
+    // React Hot Toast 特有的方法
+    dismiss: (toastId) => {
+      return toast.dismiss(toastId);
+    },
+    promise: (promise, msgs, options) => {
+      return toast.promise(promise, msgs, options);
+    },
+    loading: (message) => {
+      return toast.loading(message);
     }
   };
 };
