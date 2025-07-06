@@ -6,6 +6,7 @@ import { AlertProvider } from "./components/Alert";
 import ScrollToTop from "./components/ScrollToTop";
 import { ThemeProvider } from "./components/ThemeProvider";
 import GoogleAnalytics from "./components/GoogleAnalytics";
+import ThemeScript from "./components/ThemeScript";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -84,21 +85,41 @@ export const metadata = {
     yandex: process.env.YANDEX_VERIFICATION,
     yahoo: process.env.YAHOO_VERIFICATION,
   },
+  icons: {
+    icon: '/favion.png',
+    shortcut: '/favion.png',
+    apple: '/favion.png',
+  },
 };
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="zh-TW">
+    <html lang="zh-TW" suppressHydrationWarning>
       <head>
+        <ThemeScript />
         <link rel="manifest" href="/manifest.json" />
-        <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
+        <link rel="apple-touch-icon" href="/favion.png" />
+        <link rel="apple-touch-icon" sizes="180x180" href="/favion.png" />
+        <link rel="apple-touch-icon" sizes="152x152" href="/favion.png" />
+        <link rel="apple-touch-icon" sizes="144x144" href="/favion.png" />
+        <link rel="apple-touch-icon" sizes="120x120" href="/favion.png" />
+        <link rel="apple-touch-icon" sizes="114x114" href="/favion.png" />
+        <link rel="apple-touch-icon" sizes="76x76" href="/favion.png" />
+        <link rel="apple-touch-icon" sizes="72x72" href="/favion.png" />
+        <link rel="apple-touch-icon" sizes="60x60" href="/favion.png" />
+        <link rel="apple-touch-icon" sizes="57x57" href="/favion.png" />
+        <link rel="icon" href="/favion.png" />
+        <link rel="shortcut icon" href="/favion.png" />
         <meta name="theme-color" content="#0891b2" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <meta name="apple-mobile-web-app-title" content="Meet The Future" />
+        <meta name="apple-touch-fullscreen" content="yes" />
+        <meta name="mobile-web-app-capable" content="yes" />
+        <meta name="application-name" content="Meet The Future" />
       </head>
       <body
-        className={`${inter.variable} ${jetbrainsMono.variable} antialiased bg-gray-50 dark:bg-gray-900 font-sans transition-colors`}
+        className={`${inter.variable} ${jetbrainsMono.variable} antialiased bg-gray-50 dark:bg-gray-900 font-sans theme-transition`}
         suppressHydrationWarning={true}
       >
         <GoogleAnalytics />

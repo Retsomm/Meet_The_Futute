@@ -20,10 +20,19 @@ export default function Navigation() {
           <div className="flex justify-between h-16">
             <div className="flex items-center">
               <div className="flex-shrink-0 flex items-center">
-                
-                <span className="ml-2 text-xl font-bold text-gray-900 dark:text-white">
-                  Meet The Future
-                </span>
+                <Link href="/" className="flex items-center space-x-2">
+                  <Image
+                    src="/logo.png"
+                    alt="Meet The Future Logo"
+                    width={32}
+                    height={32}
+                    className="rounded-md"
+                    priority
+                  />
+                  <span className="text-xl font-bold text-gray-900 dark:text-white">
+                    Meet The Future
+                  </span>
+                </Link>
               </div>
             </div>
             
