@@ -88,7 +88,7 @@ export const metadata = {
   icons: {
     icon: '/favion.png',
     shortcut: '/favion.png',
-    apple: '/favion.png',
+    apple: '/icons/logo.png',
   },
 };
 
@@ -98,16 +98,16 @@ export default function RootLayout({ children }) {
       <head>
         <ThemeScript />
         <link rel="manifest" href="/manifest.json" />
-        <link rel="apple-touch-icon" href="/favion.png" />
-        <link rel="apple-touch-icon" sizes="180x180" href="/favion.png" />
-        <link rel="apple-touch-icon" sizes="152x152" href="/favion.png" />
-        <link rel="apple-touch-icon" sizes="144x144" href="/favion.png" />
-        <link rel="apple-touch-icon" sizes="120x120" href="/favion.png" />
-        <link rel="apple-touch-icon" sizes="114x114" href="/favion.png" />
-        <link rel="apple-touch-icon" sizes="76x76" href="/favion.png" />
-        <link rel="apple-touch-icon" sizes="72x72" href="/favion.png" />
-        <link rel="apple-touch-icon" sizes="60x60" href="/favion.png" />
-        <link rel="apple-touch-icon" sizes="57x57" href="/favion.png" />
+        <link rel="apple-touch-icon" href="/icons/logo.png" />
+        <link rel="apple-touch-icon" sizes="180x180" href="/icons/logo.png" />
+        <link rel="apple-touch-icon" sizes="152x152" href="/icons/logo.png" />
+        <link rel="apple-touch-icon" sizes="144x144" href="/icons/logo.png" />
+        <link rel="apple-touch-icon" sizes="120x120" href="/icons/logo.png" />
+        <link rel="apple-touch-icon" sizes="114x114" href="/icons/logo.png" />
+        <link rel="apple-touch-icon" sizes="76x76" href="/icons/logo.png" />
+        <link rel="apple-touch-icon" sizes="72x72" href="/icons/logo.png" />
+        <link rel="apple-touch-icon" sizes="60x60" href="/icons/logo.png" />
+        <link rel="apple-touch-icon" sizes="57x57" href="/icons/logo.png" />
         <link rel="icon" href="/favion.png" />
         <link rel="shortcut icon" href="/favion.png" />
         <meta name="theme-color" content="#0891b2" />

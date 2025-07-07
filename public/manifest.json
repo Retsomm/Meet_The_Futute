@@ -57,6 +57,18 @@
             "purpose": "maskable any"
         },
         {
+            "src": "/icons/logo.png",
+            "sizes": "any",
+            "type": "image/png",
+            "purpose": "any"
+        },
+        {
+            "src": "/icons/logo.png",
+            "sizes": "180x180",
+            "type": "image/png",
+            "purpose": "maskable any"
+        },
+        {
             "src": "/favion.png",
             "sizes": "any",
             "type": "image/png",
