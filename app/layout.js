@@ -98,18 +98,19 @@ export default function RootLayout({ children }) {
       <head>
         <ThemeScript />
         <link rel="manifest" href="/manifest.json" />
-        <link rel="apple-touch-icon" href="/icons/logo.png" />
-        <link rel="apple-touch-icon" sizes="180x180" href="/icons/logo.png" />
-        <link rel="apple-touch-icon" sizes="152x152" href="/icons/logo.png" />
-        <link rel="apple-touch-icon" sizes="144x144" href="/icons/logo.png" />
-        <link rel="apple-touch-icon" sizes="120x120" href="/icons/logo.png" />
-        <link rel="apple-touch-icon" sizes="114x114" href="/icons/logo.png" />
-        <link rel="apple-touch-icon" sizes="76x76" href="/icons/logo.png" />
-        <link rel="apple-touch-icon" sizes="72x72" href="/icons/logo.png" />
-        <link rel="apple-touch-icon" sizes="60x60" href="/icons/logo.png" />
-        <link rel="apple-touch-icon" sizes="57x57" href="/icons/logo.png" />
-        <link rel="icon" href="/favicon.ico" />
-        <link rel="shortcut icon" href="/favicon.ico" />
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png" />
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon.png" />
+        <link rel="shortcut icon" href="/favicon.png" />
+        <link rel="apple-touch-icon" href="/favicon.png" />
+        <link rel="apple-touch-icon" sizes="180x180" href="/favicon.png" />
+        <link rel="apple-touch-icon" sizes="152x152" href="/favicon.png" />
+        <link rel="apple-touch-icon" sizes="144x144" href="/favicon.png" />
+        <link rel="apple-touch-icon" sizes="120x120" href="/favicon.png" />
+        <link rel="apple-touch-icon" sizes="114x114" href="/favicon.png" />
+        <link rel="apple-touch-icon" sizes="76x76" href="/favicon.png" />
+        <link rel="apple-touch-icon" sizes="72x72" href="/favicon.png" />
+        <link rel="apple-touch-icon" sizes="60x60" href="/favicon.png" />
+        <link rel="apple-touch-icon" sizes="57x57" href="/favicon.png" />
         <meta name="theme-color" content="#0891b2" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
