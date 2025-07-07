@@ -86,8 +86,8 @@ export const metadata = {
     yahoo: process.env.YAHOO_VERIFICATION,
   },
   icons: {
-    icon: '/favion.png',
-    shortcut: '/favion.png',
+    icon: '/icons/logo.png',
+    shortcut: '/icons/logo.png',
     apple: '/icons/logo.png',
   },
 };
@@ -108,8 +108,8 @@ export default function RootLayout({ children }) {
         <link rel="apple-touch-icon" sizes="72x72" href="/icons/logo.png" />
         <link rel="apple-touch-icon" sizes="60x60" href="/icons/logo.png" />
         <link rel="apple-touch-icon" sizes="57x57" href="/icons/logo.png" />
-        <link rel="icon" href="/favion.png" />
-        <link rel="shortcut icon" href="/favion.png" />
+        <link rel="icon" href="/favicon.ico" />
+        <link rel="shortcut icon" href="/favicon.ico" />
         <meta name="theme-color" content="#0891b2" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
