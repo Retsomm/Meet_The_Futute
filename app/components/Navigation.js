@@ -7,7 +7,7 @@ import { useSession, signOut } from 'next-auth/react';
 import { FiHome, FiSettings, FiTarget, FiLogOut, FiUser, FiMenu, FiX } from 'react-icons/fi';
 import { useState } from 'react';
 import ThemeToggle from './ThemeToggle';
-import logo from '../../public/icons/logo.png'; 
+
 export default function Navigation() {
   const pathname = usePathname();
   const { data: session, status } = useSession();
