@@ -382,7 +382,7 @@ export default function Home() {
               <Link
               scroll={true}
                 href="/admin"
-                className="inline-flex items-center px-8 py-4 bg-white/10 backdrop-blur text-white font-semibold rounded-full hover:bg-white/20 transition-all border border-white/20"
+                className="inline-flex items-center px-8 py-4 bg-white/10 backdrop-blur dark:text-gray-200 font-semibold rounded-full hover:bg-white/20 transition-all border border-slate-950 dark:border-sky-300 text-black-200"
               >
                 管理目標
               </Link>

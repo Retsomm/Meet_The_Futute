@@ -22,7 +22,7 @@ export default function Navigation() {
               <div className="flex-shrink-0 flex items-center">
                 <Link href="/" className="flex items-center space-x-2">
                   <Image
-                    src={logo}
+                    src="/icons/logo.png"
                     alt="Meet The Future Logo"
                     width={32}
                     height={32}

@@ -5,13 +5,8 @@ const nextConfig = {
   poweredByHeader: false,
   generateEtags: true,
   compress: true,
-  
-  // 實驗性功能
-  experimental: {
-    serverActions: {
-      allowedOrigins: ['localhost:3000', 'next-cms.vercel.app'],
-    },
-  },
+
+
 
   images: {
     remotePatterns: [

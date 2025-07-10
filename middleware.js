@@ -5,7 +5,6 @@ export function middleware(request) {
   return NextResponse.next()
 }
 
-// Use Edge Runtime for better performance
 export const runtime = 'experimental-edge'
 
 // Optionally, don't invoke Middleware on some paths
