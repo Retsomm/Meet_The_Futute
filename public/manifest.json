@@ -1,0 +1,24 @@
+{
+    "name": "Meet The Future",
+    "short_name": "Meet Future",
+    "description": "追蹤你與未來自己的差距，量化你的成長進度",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#ffffff",
+    "theme_color": "#0891b2",
+    "orientation": "portrait-primary",
+    "icons": [
+        {
+            "src": "/icons/logo.png",
+            "sizes": "any",
+            "type": "image/png",
+            "purpose": "any"
+        }
+    ],
+    "categories": [
+        "productivity",
+        "lifestyle"
+    ],
+    "lang": "zh-TW",
+    "dir": "ltr"
+}
