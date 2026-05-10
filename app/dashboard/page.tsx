@@ -2,34 +2,90 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useAuth } from '../components/SupabaseProvider';
 import { storageManager } from '../../lib/storage';
+import { supabaseStorage } from '../../lib/supabaseStorage';
 import {
   calculateGoalProgress,
   calculateGapToFuture,
+  calculateCheckInRate,
+  hasCheckedInToday,
+  isPendingCheckIn,
 } from '../../lib/types';
 import type { Goal } from '../../lib/types';
-import { loadSampleData, sampleGoals } from '../../data/sampleData';
+import { sampleGoals } from '../../data/sampleData';
 import GoalProgressChart from '../components/GoalProgressChart';
 import PersonalComparison from '../components/PersonalComparison';
+import CheckInModal from '../components/CheckInModal';
+import CheckInHeatmap from '../components/CheckInHeatmap';
 import AuthGuard from '../components/AuthGuard';
 import { useAlert } from '../components/Alert';
 
+const frequencyLabel: Record<string, string> = {
+  daily: '每日',
+  weekly: '每週',
+  monthly: '每月',
+};
+
+const CheckIcon = () => (
+  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" className="inline-block align-[-1px]">
+    <path d="M20 6 9 17l-5-5"/>
+  </svg>
+);
+
 const DashboardPage = () => {
+  const { user } = useAuth();
+  const userId = user?.id ?? null;
+
   const [goals, setGoals] = useState<Goal[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadingSample, setLoadingSample] = useState(false);
+  const [checkInGoal, setCheckInGoal] = useState<Goal | null>(null);
+  const [checkInsByDate, setCheckInsByDate] = useState<Record<string, number>>({});
   const { showAlert } = useAlert();
 
   useEffect(() => {
-    const savedGoals = storageManager.getGoals();
-    setGoals(savedGoals);
-    setLoading(false);
-  }, []);
+    const load = async () => {
+      let data: Goal[];
+      if (userId) {
+        data = await supabaseStorage.getGoals(userId);
+      } else {
+        data = storageManager.getGoals();
+      }
+      setGoals(data);
+      setCheckInsByDate(
+        userId
+          ? supabaseStorage.getAllCheckInsByDate(data)
+          : storageManager.getAllCheckInsByDate()
+      );
+      setLoading(false);
+    };
+    void load();
+  }, [userId]);
+
+  const handleCheckIn = async (goalId: string, date: string, note: string): Promise<void> => {
+    let updatedGoal: Goal | null = null;
+    if (userId) {
+      updatedGoal = await supabaseStorage.addCheckIn(userId, goalId, date, note);
+    } else {
+      updatedGoal = storageManager.addCheckIn(goalId, date, note);
+    }
+    if (updatedGoal) {
+      setGoals((prev) => prev.map((g) => (g.id === goalId ? updatedGoal! : g)));
+      setCheckInsByDate((prev) => ({
+        ...prev,
+        [date]: (prev[date] ?? 0) + 1,
+      }));
+      showAlert('打卡成功！', 'success');
+    }
+  };
 
   const handleLoadSampleData = async (): Promise<void> => {
     setLoadingSample(true);
     try {
-      const existingGoals = storageManager.getGoals();
+      const existingGoals = userId
+        ? await supabaseStorage.getGoals(userId)
+        : storageManager.getGoals();
       await new Promise<void>((resolve) => setTimeout(resolve, 800));
 
       const hasSampleData = existingGoals.some((goal) =>
@@ -42,6 +98,9 @@ const DashboardPage = () => {
 
       const newSampleGoals: Goal[] = sampleGoals.map((goal, index) => ({
         ...goal,
+        frequency: 'daily' as const,
+        startDate: new Date().toISOString().split('T')[0],
+        checkIns: [],
         id: `sample-${Date.now()}-${index}`,
         subGoals: goal.subGoals.map((subGoal, subIndex) => ({
           ...subGoal,
@@ -50,7 +109,11 @@ const DashboardPage = () => {
       }));
 
       const updatedGoals = [...existingGoals, ...newSampleGoals];
-      storageManager.saveGoals(updatedGoals);
+      if (userId) {
+        await Promise.all(newSampleGoals.map((g) => supabaseStorage.addGoal(userId, g)));
+      } else {
+        storageManager.saveGoals(updatedGoals);
+      }
       setGoals(updatedGoals);
 
       const message =
@@ -71,8 +134,8 @@ const DashboardPage = () => {
       ? Math.round(goals.reduce((sum, g) => sum + calculateGoalProgress(g), 0) / goals.length)
       : 0;
   const completedGoals = goals.filter((g) => calculateGoalProgress(g) === 100).length;
-  const totalSubGoals = goals.reduce((sum, g) => sum + g.subGoals.length, 0);
-  const completedSubGoals = goals.reduce((sum, g) => sum + g.subGoals.filter((sg) => sg.isCompleted).length, 0);
+  const totalCheckIns = goals.reduce((sum, g) => sum + (g.checkIns?.length ?? 0), 0);
+  const totalCheckInDays = Object.keys(checkInsByDate).length;
 
   if (loading) {
     return (
@@ -123,14 +186,23 @@ const DashboardPage = () => {
                 { label: 'Total goals', value: goals.length, delta: null },
                 { label: 'Completed', value: completedGoals, delta: `${Math.round(completedGoals / Math.max(goals.length, 1) * 100)}% rate` },
                 { label: 'Progress', value: `${overallProgress}%`, delta: null },
-                { label: 'Gap to future self', value: `${100 - overallProgress}%`, accent: true },
+                { label: 'Check-in days', value: totalCheckInDays, positive: true, delta: `共 ${totalCheckIns} 次` },
               ].map((s, i) => (
                 <div key={i} className="p-6 border-l border-line first:border-l-0 [&:nth-child(odd)]:border-l-0 md:[&:nth-child(odd)]:border-l md:[&:nth-child(1)]:border-l-0">
                   <div className="font-mono text-[11px] tracking-[0.12em] uppercase text-ink-3">{s.label}</div>
-                  <div className={`font-serif text-[36px] font-medium leading-none mt-3 tracking-[-0.02em] ${s.accent ? 'text-accent' : 'text-ink'}`}>{s.value}</div>
-                  {s.delta && <div className="font-mono text-[11.5px] text-positive mt-2">{s.delta}</div>}
+                  <div className={`font-serif text-[36px] font-medium leading-none mt-3 tracking-[-0.02em] ${s.positive ? 'text-positive' : 'text-ink'}`}>{s.value}</div>
+                  {s.delta && <div className="font-mono text-[11.5px] text-ink-3 mt-2">{s.delta}</div>}
                 </div>
               ))}
+            </div>
+
+            {/* Heatmap */}
+            <div className="bg-surface border border-line rounded-dl shadow-ds p-6">
+              <div className="mb-5">
+                <p className="eyebrow">打卡記錄</p>
+                <h3 className="font-serif text-[20px] font-medium mt-1.5 mb-0 tracking-[-0.01em]">打卡熱圖</h3>
+              </div>
+              <CheckInHeatmap checkInsByDate={checkInsByDate} />
             </div>
 
             {/* Charts */}
@@ -157,24 +229,79 @@ const DashboardPage = () => {
                   const gap = calculateGapToFuture(goal);
                   const variant = progress === 100 ? 'green' : progress < 40 ? 'warn' : '';
                   const pctColor = variant === 'green' ? 'text-positive' : variant === 'warn' ? 'text-warn' : 'text-accent';
+                  const checkedToday = hasCheckedInToday(goal);
+                  const goalCheckIns = goal.checkIns?.length ?? 0;
+                  const checkInRate = calculateCheckInRate(goal);
+                  const pending = isPendingCheckIn(goal);
+
                   return (
                     <div key={goal.id} className={`p-6${idx === 0 ? '' : ' border-t border-line'}`}>
-                      <div className="flex justify-between items-start gap-6">
+                      <div className="flex justify-between items-start gap-4 flex-wrap">
                         <div>
                           <h3 className="font-serif text-[22px] font-medium tracking-[-0.01em] m-0">{goal.title}</h3>
-                          <div className="flex gap-3.5 font-mono text-[11px] tracking-[0.06em] text-ink-3 mt-2">
+                          <div className="flex flex-wrap gap-3 font-mono text-[11px] tracking-[0.06em] text-ink-3 mt-2">
                             <span>建立 · {new Date(goal.createdAt).toLocaleDateString('zh-TW')}</span>
                             <span>· {goal.subGoals.filter(sg => sg.isCompleted).length} / {goal.subGoals.length} 子目標</span>
+                            <span>· {frequencyLabel[goal.frequency ?? 'daily']} 打卡</span>
+                            <span>· 累計 {goalCheckIns} 次</span>
+                            {goal.endDate && (
+                              <span>· 結束 {goal.endDate}</span>
+                            )}
                           </div>
                         </div>
-                        <div className="text-right shrink-0">
-                          <div className={`font-serif text-[32px] font-medium tracking-[-0.02em] ${pctColor}`}>{progress}%</div>
+                        <div className="flex items-center gap-3 shrink-0">
+                          <div className="text-right">
+                            <div className={`font-serif text-[32px] font-medium tracking-[-0.02em] ${pctColor}`}>{progress}%</div>
+                          </div>
+                          <button
+                            onClick={() => setCheckInGoal(goal)}
+                            className={`btn-d shrink-0 ${
+                              checkedToday
+                                ? 'btn-secondary-d text-positive border-positive/30 bg-positive-bg'
+                                : 'btn-primary-d'
+                            }`}
+                          >
+                            <CheckIcon />
+                            {checkedToday ? '已打卡' : '打卡'}
+                          </button>
                         </div>
                       </div>
                       <div className={`progress-d${variant === 'green' ? ' progress-green-d' : variant === 'warn' ? ' progress-warn-d' : ''} mt-[18px]`}>
                         <span style={{ width: `${progress}%` }} />
                       </div>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-5">
+
+                      {/* Check-in rate */}
+                      {goal.endDate && (
+                        <div className="mt-4 flex items-center gap-3">
+                          <div className="flex-1 h-1.5 bg-bg-3 rounded-full overflow-hidden">
+                            <div
+                              className="h-full bg-accent rounded-full transition-all"
+                              style={{ width: `${checkInRate.rate}%` }}
+                            />
+                          </div>
+                          <span className="font-mono text-[11px] text-ink-3 shrink-0">
+                            打卡率 {checkInRate.checkedDays}/{checkInRate.totalDays} 天 · {checkInRate.rate}%
+                          </span>
+                        </div>
+                      )}
+
+                      {/* Pending check-in block */}
+                      {pending && (
+                        <div className="mt-4 flex items-center justify-between gap-4 p-4 bg-accent-bg border border-accent/25 rounded-dl">
+                          <div>
+                            <p className="font-mono text-[11px] tracking-[0.1em] uppercase text-accent mb-1">今日待打卡</p>
+                            <p className="text-[13px] text-ink-2 m-0">記錄今天的行動，持續累積你的打卡率</p>
+                          </div>
+                          <button
+                            onClick={() => setCheckInGoal(goal)}
+                            className="btn-d btn-primary-d shrink-0"
+                          >
+                            <CheckIcon /> 立即打卡
+                          </button>
+                        </div>
+                      )}
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-5">
                         <div className="p-4 border border-line rounded-d bg-bg-2">
                           <div className="font-mono text-[11px] tracking-[0.1em] uppercase text-ink-3 mb-1.5">目前的自己</div>
                           <div className="text-[14px] text-ink-2 leading-[1.55]">{goal.currentSelfDescription || '尚未設定'}</div>
@@ -203,6 +330,15 @@ const DashboardPage = () => {
           </div>
         )}
       </div>
+
+      {/* Check-in modal */}
+      {checkInGoal && (
+        <CheckInModal
+          goal={checkInGoal}
+          onCheckIn={handleCheckIn}
+          onClose={() => setCheckInGoal(null)}
+        />
+      )}
     </AuthGuard>
   );
 };

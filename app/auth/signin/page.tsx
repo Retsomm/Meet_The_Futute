@@ -1,13 +1,7 @@
 'use client';
 
-import { getProviders, signIn } from 'next-auth/react';
-import type { ClientSafeProvider, LiteralUnion } from 'next-auth/react';
-import type { BuiltInProviderType } from 'next-auth/providers/index';
-import { useState, useEffect } from 'react';
 import Link from 'next/link';
-
-type ProviderId = LiteralUnion<BuiltInProviderType, string>;
-type Providers = Record<ProviderId, ClientSafeProvider> | null;
+import { getSupabase } from '../../../lib/supabase';
 
 const GoogleIcon = () => (
   <svg width="16" height="16" viewBox="0 0 24 24" className="inline-block align-[-3px] shrink-0">
@@ -24,37 +18,29 @@ const GithubIcon = () => (
   </svg>
 );
 
-const MailIcon = () => (
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" className="inline-block align-[-3px] shrink-0">
-    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
-    <path d="m22 6-10 7L2 6"/>
-  </svg>
-);
+type Provider = 'google' | 'github';
 
-const getProviderIcon = (id: string) => {
-  if (id === 'google') return <GoogleIcon />;
-  if (id === 'github') return <GithubIcon />;
-  return <MailIcon />;
-};
+const providers: { id: Provider; label: string; icon: React.ReactNode }[] = [
+  { id: 'google', label: '使用 Google 繼續', icon: <GoogleIcon /> },
+  { id: 'github', label: '使用 GitHub 繼續', icon: <GithubIcon /> },
+];
 
-const getProviderLabel = (id: string, name: string) => {
-  if (id === 'google') return '使用 Google 繼續';
-  if (id === 'github') return '使用 GitHub 繼續';
-  return `使用 ${name} 繼續`;
+const handleSignIn = async (provider: Provider) => {
+  const sb = getSupabase();
+  if (!sb) return;
+  await sb.auth.signInWithOAuth({
+    provider,
+    options: {
+      redirectTo: `${window.location.origin}/auth/callback`,
+    },
+  });
 };
 
 const SignIn = () => {
-  const [providers, setProviders] = useState<Providers>(null);
-
-  useEffect(() => {
-    void getProviders().then(setProviders);
-  }, []);
-
   return (
     <div className="min-h-[calc(100vh-60px)] grid grid-cols-1 md:grid-cols-2">
       {/* Left art panel */}
       <div className="bg-bg-2 border-r border-line relative p-14 hidden md:flex flex-col justify-between overflow-hidden">
-        {/* Grid background — complex CSS gradient, kept as style */}
         <div
           className="absolute inset-0 pointer-events-none"
           style={{
@@ -94,21 +80,18 @@ const SignIn = () => {
             登入來追蹤你的成長目標 — 你的資料只屬於你。
           </p>
 
-          {providers && Object.values(providers).length === 0 && (
-            <div className="p-4 bg-warn-bg border border-line rounded-dl mb-4">
-              <p className="m-0 text-[13px] text-warn font-mono">尚未設定登入方式。請在 .env.local 設定 OAuth 憑證。</p>
-            </div>
-          )}
-          {providers && Object.values(providers).map((provider) => (
-            <button
-              key={provider.id}
-              onClick={() => void signIn(provider.id, { callbackUrl: '/dashboard' })}
-              className="w-full flex items-center justify-center gap-2.5 py-3 px-4 bg-surface border border-line-2 rounded-lg text-[14px] text-ink cursor-pointer transition-all shadow-ds hover:bg-bg-2 mb-2"
-            >
-              {getProviderIcon(provider.id)}
-              {getProviderLabel(provider.id, provider.name)}
-            </button>
-          ))}
+          <div className="flex flex-col gap-2">
+            {providers.map(({ id, label, icon }) => (
+              <button
+                key={id}
+                onClick={() => void handleSignIn(id)}
+                className="w-full flex items-center justify-center gap-2.5 py-3 px-4 bg-surface border border-line-2 rounded-lg text-[14px] text-ink cursor-pointer transition-all shadow-ds hover:bg-bg-2"
+              >
+                {icon}
+                {label}
+              </button>
+            ))}
+          </div>
 
           <div className="flex items-center gap-3 my-5 text-ink-3 text-[12px] font-mono tracking-[0.1em]">
             <span className="flex-1 h-px bg-line" />
@@ -116,10 +99,7 @@ const SignIn = () => {
             <span className="flex-1 h-px bg-line" />
           </div>
 
-          <Link
-            href="/"
-            className="btn-d btn-secondary-d w-full flex justify-center"
-          >
+          <Link href="/" className="btn-d btn-secondary-d w-full flex justify-center">
             ← 返回首頁
           </Link>
 

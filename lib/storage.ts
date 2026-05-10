@@ -1,4 +1,4 @@
-import type { Goal, SubGoal } from './types';
+import type { Goal, SubGoal, CheckIn, GoalFrequency } from './types';
 
 const STORAGE_KEY = 'personal-goals-cms';
 
@@ -7,9 +7,15 @@ class LocalStorageManager {
     if (typeof window === 'undefined') return [];
     try {
       const data = localStorage.getItem(STORAGE_KEY);
-      return data ? (JSON.parse(data) as Goal[]) : [];
+      const goals = data ? (JSON.parse(data) as Goal[]) : [];
+      // Migrate old goals that don't have new fields
+      return goals.map((g) => ({
+        ...g,
+        frequency: g.frequency ?? ('daily' as GoalFrequency),
+        startDate: g.startDate ?? g.createdAt.split('T')[0],
+        checkIns: g.checkIns ?? [],
+      }));
     } catch {
-      console.error('Error reading from localStorage');
       return [];
     }
   }
@@ -71,6 +77,55 @@ class LocalStorageManager {
     goals[goalIndex].updatedAt = new Date().toISOString();
     this.saveGoals(goals);
     return goals[goalIndex];
+  }
+
+  addCheckIn(goalId: string, date: string, note: string): Goal | null {
+    const goals = this.getGoals();
+    const goalIndex = goals.findIndex((g) => g.id === goalId);
+    if (goalIndex === -1) return null;
+
+    const checkIn: CheckIn = {
+      id: Date.now().toString() + '-' + Math.random().toString(36).substr(2, 9),
+      goalId,
+      date,
+      note,
+      createdAt: new Date().toISOString(),
+    };
+
+    goals[goalIndex].checkIns = [...(goals[goalIndex].checkIns ?? []), checkIn];
+    goals[goalIndex].updatedAt = new Date().toISOString();
+    this.saveGoals(goals);
+    return goals[goalIndex];
+  }
+
+  deleteCheckIn(goalId: string, checkInId: string): Goal | null {
+    const goals = this.getGoals();
+    const goalIndex = goals.findIndex((g) => g.id === goalId);
+    if (goalIndex === -1) return null;
+
+    goals[goalIndex].checkIns = goals[goalIndex].checkIns.filter(
+      (c) => c.id !== checkInId
+    );
+    goals[goalIndex].updatedAt = new Date().toISOString();
+    this.saveGoals(goals);
+    return goals[goalIndex];
+  }
+
+  // Aggregate check-ins across all goals by date → { date: count }
+  getAllCheckInsByDate(): Record<string, number> {
+    const goals = this.getGoals();
+    const map: Record<string, number> = {};
+    for (const goal of goals) {
+      for (const c of goal.checkIns ?? []) {
+        map[c.date] = (map[c.date] ?? 0) + 1;
+      }
+    }
+    return map;
+  }
+
+  getTotalCheckIns(): number {
+    const goals = this.getGoals();
+    return goals.reduce((sum, g) => sum + (g.checkIns?.length ?? 0), 0);
   }
 }
 

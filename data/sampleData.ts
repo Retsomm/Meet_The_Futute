@@ -9,6 +9,9 @@ export const sampleGoals: Goal[] = [
       '目前只能進行簡單的英語對話，閱讀英文資料時需要查字典',
     futureSelfDescription:
       '能夠自信地進行英語簡報，閱讀英文技術文件無障礙，能與國外同事順暢溝通',
+    frequency: 'daily',
+    startDate: '2024-11-01',
+    checkIns: [],
     subGoals: [
       {
         id: 'sub-1-1',
@@ -49,6 +52,9 @@ export const sampleGoals: Goal[] = [
     currentSelfDescription: '經常熬夜，很少運動，常吃外食，體重超標',
     futureSelfDescription:
       '每週固定運動3次，早睡早起，體重維持在標準範圍，精神飽滿',
+    frequency: 'daily',
+    startDate: '2024-11-15',
+    checkIns: [],
     subGoals: [
       {
         id: 'sub-2-1',
@@ -82,6 +88,9 @@ export const sampleGoals: Goal[] = [
     currentSelfDescription: '完全沒有程式設計經驗，對程式語言感到陌生',
     futureSelfDescription:
       '能夠獨立開發簡單的Python應用程式，理解基本的程式設計概念',
+    frequency: 'weekly',
+    startDate: '2024-10-01',
+    checkIns: [],
     subGoals: [
       {
         id: 'sub-3-1',

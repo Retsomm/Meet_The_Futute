@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useSession, signOut } from 'next-auth/react';
+import { useAuth } from './SupabaseProvider';
 import { useState } from 'react';
 import Image from 'next/image';
 import { useTheme } from './ThemeProvider';
@@ -56,14 +56,15 @@ const UserIcon = () => (
 
 const Navigation = () => {
   const pathname = usePathname();
-  const { data: session, status } = useSession();
+  const { user, loading, signOut } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const navItems = [
     { href: '/', label: '首頁' },
-    ...(session ? [
+    ...(user ? [
       { href: '/dashboard', label: '儀表板' },
+      { href: '/checkin', label: '打卡' },
       { href: '/admin', label: '目標管理' },
     ] : []),
   ];
@@ -125,19 +126,12 @@ const Navigation = () => {
 
           {/* Desktop auth */}
           <div className="hidden md:flex items-center gap-2">
-            {status === 'loading' ? (
-              <Link
-                href="/auth/signin"
-                className="bg-surface text-ink border border-line shadow-ds hover:bg-bg-2 hover:border-ink px-4 py-2 rounded-lg text-sm font-medium inline-flex items-center gap-2 transition-all"
-              >
-                登入
-              </Link>
-            ) : session ? (
+            {loading ? null : user ? (
               <div className="flex items-center gap-2">
-                {session.user?.image ? (
+                {user.user_metadata?.avatar_url ? (
                   <Image
-                    src={session.user.image}
-                    alt={session.user.name ?? '用戶'}
+                    src={user.user_metadata.avatar_url as string}
+                    alt={(user.user_metadata?.full_name as string) ?? '用戶'}
                     width={28}
                     height={28}
                     className="rounded-full"
@@ -193,7 +187,7 @@ const Navigation = () => {
             </Link>
           ))}
           <div className="border-t border-line mt-2 pt-3">
-            {session ? (
+            {user ? (
               <button
                 onClick={() => { void signOut(); setIsMenuOpen(false); }}
                 className="w-full justify-center bg-transparent text-ink-2 hover:bg-bg-2 hover:text-ink px-3 py-1.5 rounded-lg text-sm font-medium transition-all border border-transparent"

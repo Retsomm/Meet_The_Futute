@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useState, useEffect, useRef } from 'react';
-import { useSession } from 'next-auth/react';
+import { useAuth } from './components/SupabaseProvider';
 import StructuredData from './components/StructuredData';
 
 type TabType = 'present' | 'future';
@@ -26,8 +26,8 @@ const ArrowIcon = ({ size = 14 }: { size?: number }) => (
 const Home = () => {
   const [tab, setTab] = useState<TabType>('present');
   const rootRef = useRef<HTMLDivElement>(null);
-  const { status } = useSession();
-  const ctaHref = status === 'authenticated' ? '/admin' : '/auth/signin';
+  const { user } = useAuth();
+  const ctaHref = user ? '/admin' : '/auth/signin';
 
   useEffect(() => {
     let mounted = true;

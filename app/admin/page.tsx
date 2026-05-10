@@ -1,7 +1,9 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useAuth } from '../components/SupabaseProvider';
 import { storageManager } from '../../lib/storage';
+import { supabaseStorage } from '../../lib/supabaseStorage';
 import { createNewGoal, calculateGoalProgress } from '../../lib/types';
 import type { Goal, GoalFormData } from '../../lib/types';
 import GoalForm from '../components/GoalForm';
@@ -16,6 +18,9 @@ const PlusIcon = () => (
 );
 
 const AdminPage = () => {
+  const { user } = useAuth();
+  const userId = user?.id ?? null;
+
   const [goals, setGoals] = useState<Goal[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [editingGoal, setEditingGoal] = useState<Goal | null>(null);
@@ -23,29 +28,44 @@ const AdminPage = () => {
   const { showAlert, showConfirm } = useAlert();
 
   useEffect(() => {
-    const savedGoals = storageManager.getGoals();
-    setGoals(savedGoals);
-    setLoading(false);
-  }, []);
+    const load = async () => {
+      if (userId) {
+        const data = await supabaseStorage.getGoals(userId);
+        setGoals(data);
+      } else {
+        setGoals(storageManager.getGoals());
+      }
+      setLoading(false);
+    };
+    void load();
+  }, [userId]);
 
-  const handleSaveGoal = (goalData: GoalFormData): void => {
+  const handleSaveGoal = async (goalData: GoalFormData): Promise<void> => {
     if (editingGoal) {
       const updatedGoalData = {
         ...goalData,
         subGoals: goalData.subGoals.map((subGoal, index) => ({
           ...subGoal,
-          id:
-            subGoal.id ??
-            `${editingGoal.id}-sub-${index + 1}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+          id: subGoal.id ?? `${editingGoal.id}-sub-${index + 1}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
           completedAt: subGoal.isCompleted ? new Date().toISOString() : null,
         })),
       };
-      const updatedGoal = storageManager.updateGoal(editingGoal.id, updatedGoalData);
-      if (updatedGoal) {
-        setGoals((prev) => prev.map((g) => (g.id === editingGoal.id ? updatedGoal : g)));
+
+      if (userId) {
+        const updatedGoal = await supabaseStorage.updateGoal(userId, editingGoal.id, updatedGoalData);
+        if (updatedGoal) setGoals((prev) => prev.map((g) => (g.id === editingGoal.id ? updatedGoal : g)));
+      } else {
+        const updatedGoal = storageManager.updateGoal(editingGoal.id, updatedGoalData);
+        if (updatedGoal) setGoals((prev) => prev.map((g) => (g.id === editingGoal.id ? updatedGoal : g)));
       }
     } else {
-      const newGoal = createNewGoal(goalData.title, goalData.description, goalData.subGoals.length);
+      const newGoal = createNewGoal(
+        goalData.title,
+        goalData.description,
+        goalData.subGoals.length,
+        goalData.frequency,
+        goalData.startDate,
+      );
       newGoal.subGoals = goalData.subGoals.map((subGoal, index) => ({
         id: subGoal.id ?? `${newGoal.id}-sub-${index + 1}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
         title: subGoal.title,
@@ -56,7 +76,12 @@ const AdminPage = () => {
       }));
       newGoal.currentSelfDescription = goalData.currentSelfDescription;
       newGoal.futureSelfDescription = goalData.futureSelfDescription;
-      storageManager.addGoal(newGoal);
+
+      if (userId) {
+        await supabaseStorage.addGoal(userId, newGoal);
+      } else {
+        storageManager.addGoal(newGoal);
+      }
       setGoals((prev) => [...prev, newGoal]);
     }
     setShowForm(false);
@@ -71,16 +96,23 @@ const AdminPage = () => {
   const handleDeleteGoal = async (goalId: string): Promise<void> => {
     const confirmed = await showConfirm('確定要刪除這個目標嗎？', '刪除目標');
     if (confirmed) {
-      storageManager.deleteGoal(goalId);
+      if (userId) {
+        await supabaseStorage.deleteGoal(userId, goalId);
+      } else {
+        storageManager.deleteGoal(goalId);
+      }
       setGoals((prev) => prev.filter((g) => g.id !== goalId));
       showAlert('目標已成功刪除', 'success');
     }
   };
 
-  const handleToggleSubGoal = (goalId: string, subGoalId: string, isCompleted: boolean): void => {
-    const updatedGoal = storageManager.updateSubGoal(goalId, subGoalId, { isCompleted });
-    if (updatedGoal) {
-      setGoals((prev) => prev.map((g) => (g.id === goalId ? updatedGoal : g)));
+  const handleToggleSubGoal = async (goalId: string, subGoalId: string, isCompleted: boolean): Promise<void> => {
+    if (userId) {
+      const updatedGoal = await supabaseStorage.updateSubGoal(userId, goalId, subGoalId, { isCompleted });
+      if (updatedGoal) setGoals((prev) => prev.map((g) => (g.id === goalId ? updatedGoal : g)));
+    } else {
+      const updatedGoal = storageManager.updateSubGoal(goalId, subGoalId, { isCompleted });
+      if (updatedGoal) setGoals((prev) => prev.map((g) => (g.id === goalId ? updatedGoal : g)));
     }
   };
 
@@ -122,6 +154,14 @@ const AdminPage = () => {
           </button>
         </div>
 
+        {/* Storage mode indicator */}
+        <div className="mb-4 flex items-center gap-2">
+          <span className={`w-1.5 h-1.5 rounded-full inline-block ${userId ? 'bg-positive' : 'bg-warn'}`} />
+          <span className="font-mono text-[11px] tracking-[0.08em] text-ink-3">
+            {userId ? `雲端同步 · ${userId}` : '本機儲存 · 登入後可同步至雲端'}
+          </span>
+        </div>
+
         {/* Stat row */}
         <div className="grid grid-cols-2 md:grid-cols-4 border border-line rounded-dl bg-surface overflow-hidden">
           {[
@@ -140,7 +180,7 @@ const AdminPage = () => {
         {/* Goal form */}
         {showForm && (
           <div className="mt-6">
-            <GoalForm goal={editingGoal} onSave={handleSaveGoal} onCancel={handleCancel} />
+            <GoalForm goal={editingGoal} onSave={(data) => void handleSaveGoal(data)} onCancel={handleCancel} />
           </div>
         )}
 
@@ -153,7 +193,7 @@ const AdminPage = () => {
             goals={goals}
             onEdit={handleEditGoal}
             onDelete={(id) => void handleDeleteGoal(id)}
-            onToggleSubGoal={handleToggleSubGoal}
+            onToggleSubGoal={(goalId, subGoalId, isCompleted) => void handleToggleSubGoal(goalId, subGoalId, isCompleted)}
           />
         </div>
       </div>

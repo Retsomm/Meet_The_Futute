@@ -1,43 +1,33 @@
 'use client';
 
-import { useSession } from 'next-auth/react';
+import { useAuth } from './SupabaseProvider';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import type { ReactNode } from 'react';
-import { FiLoader } from 'react-icons/fi';
 
-interface AuthGuardProps {
-  children: ReactNode;
-}
-
-export default function AuthGuard({ children }: AuthGuardProps) {
-  const { data: session, status } = useSession();
+export default function AuthGuard({ children }: { children: ReactNode }) {
+  const { user, loading } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
-    if (status === 'loading') return;
-    if (!session) {
-      router.push('/auth/signin');
-    }
-  }, [session, status, router]);
+    if (!loading && !user) router.push('/auth/signin');
+  }, [user, loading, router]);
 
-  if (status === 'loading') {
+  if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-bg">
         <div className="text-center">
-          <FiLoader className="h-8 w-8 animate-spin text-blue-600 mx-auto mb-4" />
-          <p className="text-gray-600">載入中...</p>
+          <div className="w-10 h-10 border-2 border-line border-t-accent rounded-full animate-spin mx-auto" />
+          <p className="mt-4 text-ink-3 font-mono text-[12px] tracking-[0.1em]">LOADING</p>
         </div>
       </div>
     );
   }
 
-  if (!session) {
+  if (!user) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-gray-600">正在跳轉到登入頁面...</p>
-        </div>
+      <div className="min-h-screen flex items-center justify-center bg-bg">
+        <p className="text-ink-2 text-[14px]">正在跳轉到登入頁面...</p>
       </div>
     );
   }
