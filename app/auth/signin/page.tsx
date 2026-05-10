@@ -4,136 +4,135 @@ import { getProviders, signIn } from 'next-auth/react';
 import type { ClientSafeProvider, LiteralUnion } from 'next-auth/react';
 import type { BuiltInProviderType } from 'next-auth/providers/index';
 import { useState, useEffect } from 'react';
-import { FiMail, FiGithub, FiTwitter } from 'react-icons/fi';
-import type { ReactNode } from 'react';
 import Link from 'next/link';
 
 type ProviderId = LiteralUnion<BuiltInProviderType, string>;
 type Providers = Record<ProviderId, ClientSafeProvider> | null;
 
-export default function SignIn() {
+const GoogleIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" className="inline-block align-[-3px] shrink-0">
+    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84A11 11 0 0 0 12 23z"/>
+    <path fill="#FBBC05" d="M5.84 14.09a6.6 6.6 0 0 1 0-4.18V7.07H2.18a11 11 0 0 0 0 9.86l3.66-2.84z"/>
+    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84C6.71 7.31 9.14 5.38 12 5.38z"/>
+  </svg>
+);
+
+const GithubIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" className="inline-block align-[-3px] shrink-0">
+    <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/>
+  </svg>
+);
+
+const MailIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" className="inline-block align-[-3px] shrink-0">
+    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+    <path d="m22 6-10 7L2 6"/>
+  </svg>
+);
+
+const getProviderIcon = (id: string) => {
+  if (id === 'google') return <GoogleIcon />;
+  if (id === 'github') return <GithubIcon />;
+  return <MailIcon />;
+};
+
+const getProviderLabel = (id: string, name: string) => {
+  if (id === 'google') return '使用 Google 繼續';
+  if (id === 'github') return '使用 GitHub 繼續';
+  return `使用 ${name} 繼續`;
+};
+
+const SignIn = () => {
   const [providers, setProviders] = useState<Providers>(null);
 
   useEffect(() => {
-    const fetchProviders = async (): Promise<void> => {
-      const res = await getProviders();
-      setProviders(res);
-    };
-    void fetchProviders();
+    void getProviders().then(setProviders);
   }, []);
 
-  const getProviderIcon = (providerId: string): ReactNode => {
-    switch (providerId) {
-      case 'google':
-        return <FiMail className="h-5 w-5" />;
-      case 'github':
-        return <FiGithub className="h-5 w-5" />;
-      case 'twitter':
-        return <FiTwitter className="h-5 w-5" />;
-      default:
-        return null;
-    }
-  };
-
-  const getProviderColor = (providerId: string): string => {
-    switch (providerId) {
-      case 'google':
-        return 'bg-red-600 hover:bg-red-700';
-      case 'github':
-        return 'bg-gray-800 hover:bg-gray-900';
-      case 'twitter':
-        return 'bg-blue-500 hover:bg-blue-600';
-      default:
-        return 'bg-gray-600 hover:bg-gray-700';
-    }
-  };
-
-  const getProviderName = (providerId: string): string => {
-    switch (providerId) {
-      case 'google':
-        return 'Google';
-      case 'github':
-        return 'GitHub';
-      case 'twitter':
-        return 'X (Twitter)';
-      default:
-        return providerId;
-    }
-  };
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-cyan-900 dark:via-blue-900 dark:to-teal-800 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 transition-colors">
-      <div className="max-w-md w-full">
-        <div className="bg-white/80 dark:bg-white/10 backdrop-blur border border-gray-200 dark:border-white/20 rounded-2xl p-8 transition-colors">
-          <div className="text-center mb-8">
-            <Link scroll={true} href="/" className="inline-block mb-6">
-              <h1 className="text-3xl font-bold bg-gradient-to-r from-cyan-600 to-teal-600 dark:from-cyan-400 dark:to-teal-400 bg-clip-text text-transparent">
-                遇見未來的自己
-              </h1>
-            </Link>
-            <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-2 transition-colors">
-              歡迎回來
-            </h2>
-            <p className="text-gray-600 dark:text-gray-200 transition-colors">
-              登入來追蹤你的成長目標
-            </p>
-          </div>
-
-          <div className="space-y-4">
-            {providers &&
-              Object.values(providers).map((provider) => (
-                <button
-                  key={provider.name}
-                  onClick={() =>
-                    void signIn(provider.id, { callbackUrl: '/dashboard' })
-                  }
-                  className={`w-full flex items-center justify-center px-4 py-3 border border-transparent text-sm font-medium rounded-lg text-white transition-colors ${getProviderColor(provider.id)}`}
-                >
-                  {getProviderIcon(provider.id)}
-                  <span className="ml-3">
-                    使用 {getProviderName(provider.id)} 登入
-                  </span>
-                </button>
-              ))}
-          </div>
-
-          <div className="mt-8 text-center">
-            <p className="text-sm text-gray-300">
-              登入即表示您同意我們的服務條款和隱私政策
-            </p>
-          </div>
-
-          <div className="mt-6 text-center">
-            <Link
-              scroll={true}
-              href="/"
-              className="text-cyan-400 hover:text-cyan-300 transition-colors text-sm"
-            >
-              ← 返回首頁
-            </Link>
+    <div className="min-h-[calc(100vh-60px)] grid grid-cols-1 md:grid-cols-2">
+      {/* Left art panel */}
+      <div className="bg-bg-2 border-r border-line relative p-14 hidden md:flex flex-col justify-between overflow-hidden">
+        {/* Grid background — complex CSS gradient, kept as style */}
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            backgroundImage: 'linear-gradient(var(--line) 1px, transparent 1px), linear-gradient(90deg, var(--line) 1px, transparent 1px)',
+            backgroundSize: '40px 40px',
+            opacity: 0.4,
+            maskImage: 'radial-gradient(circle at 30% 50%, #000 0%, transparent 70%)',
+            WebkitMaskImage: 'radial-gradient(circle at 30% 50%, #000 0%, transparent 70%)',
+          }}
+        />
+        <div className="relative">
+          <p className="eyebrow">A note before you sign in</p>
+        </div>
+        <div className="relative">
+          <p className="font-serif text-[28px] leading-[1.4] text-ink tracking-[-0.01em] max-w-[440px] m-0">
+            <em className="text-accent italic">&ldquo;</em>
+            把未來的自己想像成更好、更具生產力的版本，足以激勵<em className="italic">現在的你</em>做出對未來自己有益的行為。
+          </p>
+          <div className="font-mono text-[11px] tracking-[0.14em] uppercase text-ink-3 mt-8 flex items-center gap-3">
+            <span className="w-6 h-px bg-ink-3 inline-block" />
+            Future-self continuity research
           </div>
         </div>
+        <div className="relative flex gap-6 text-[12px] text-ink-3 font-mono tracking-[0.06em]">
+          <span>v 2.0</span>
+          <span>·</span>
+          <span>private by default</span>
+        </div>
+      </div>
 
-        <div className="mt-8 bg-white/5 backdrop-blur border border-white/10 rounded-xl p-6">
-          <h3 className="text-lg font-semibold text-white mb-4">
-            為什麼需要登入？
-          </h3>
-          <ul className="space-y-2 text-sm text-gray-200">
-            <li className="flex items-start">
-              <span className="text-cyan-400 mr-2">•</span>
-              保護你的個人目標和進度資料
-            </li>
-            <li className="flex items-start">
-              <span className="text-cyan-400 mr-2">•</span>
-              在不同裝置間同步你的成長軌跡
-            </li>
-            <li className="flex items-start">
-              <span className="text-cyan-400 mr-2">•</span>
-              確保只有你能訪問和管理你的目標
-            </li>
-          </ul>
+      {/* Right form panel */}
+      <div className="flex items-center justify-center p-10">
+        <div className="w-full max-w-[380px]">
+          <p className="eyebrow">遇見未來的自己</p>
+          <h1 className="font-serif text-[36px] font-medium tracking-[-0.02em] mt-3 mb-0">歡迎回來</h1>
+          <p className="text-ink-2 mt-2 mb-8 text-[14px]">
+            登入來追蹤你的成長目標 — 你的資料只屬於你。
+          </p>
+
+          {providers && Object.values(providers).length === 0 && (
+            <div className="p-4 bg-warn-bg border border-line rounded-dl mb-4">
+              <p className="m-0 text-[13px] text-warn font-mono">尚未設定登入方式。請在 .env.local 設定 OAuth 憑證。</p>
+            </div>
+          )}
+          {providers && Object.values(providers).map((provider) => (
+            <button
+              key={provider.id}
+              onClick={() => void signIn(provider.id, { callbackUrl: '/dashboard' })}
+              className="w-full flex items-center justify-center gap-2.5 py-3 px-4 bg-surface border border-line-2 rounded-lg text-[14px] text-ink cursor-pointer transition-all shadow-ds hover:bg-bg-2 mb-2"
+            >
+              {getProviderIcon(provider.id)}
+              {getProviderLabel(provider.id, provider.name)}
+            </button>
+          ))}
+
+          <div className="flex items-center gap-3 my-5 text-ink-3 text-[12px] font-mono tracking-[0.1em]">
+            <span className="flex-1 h-px bg-line" />
+            OR
+            <span className="flex-1 h-px bg-line" />
+          </div>
+
+          <Link
+            href="/"
+            className="btn-d btn-secondary-d w-full flex justify-center"
+          >
+            ← 返回首頁
+          </Link>
+
+          <div className="text-[12px] text-ink-3 mt-7 leading-relaxed">
+            登入即表示您同意我們的
+            <a href="#" className="text-accent">服務條款</a>和
+            <a href="#" className="text-accent">隱私政策</a>。
+            <br />我們不會販售你的資料 — 也不會把你的目標寄給你媽。
+          </div>
         </div>
       </div>
     </div>
   );
-}
+};
+
+export default SignIn;

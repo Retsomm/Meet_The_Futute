@@ -4,15 +4,15 @@
     "description": "追蹤你與未來自己的差距，量化你的成長進度",
     "start_url": "/",
     "display": "standalone",
-    "background_color": "#ffffff",
-    "theme_color": "#0891b2",
+    "background_color": "#2c2825",
+    "theme_color": "#c96442",
     "orientation": "portrait-primary",
     "icons": [
         {
-            "src": "/icons/logo.png",
+            "src": "/icons/logo.svg",
             "sizes": "any",
-            "type": "image/png",
-            "purpose": "any"
+            "type": "image/svg+xml",
+            "purpose": "any maskable"
         }
     ],
     "categories": [

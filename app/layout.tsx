@@ -1,4 +1,4 @@
-import { Inter, JetBrains_Mono } from 'next/font/google';
+import { Inter, JetBrains_Mono, Source_Serif_4 } from 'next/font/google';
 import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
 import './globals.css';
@@ -13,6 +13,13 @@ import ThemeScript from './components/ThemeScript';
 const inter = Inter({
   variable: '--font-inter',
   subsets: ['latin'],
+  display: 'swap',
+});
+
+const sourceSerif4 = Source_Serif_4({
+  variable: '--font-source-serif',
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
   display: 'swap',
 });
 
@@ -93,9 +100,9 @@ export const metadata: Metadata = {
     yahoo: process.env.YAHOO_VERIFICATION,
   },
   icons: {
-    icon: '/icons/logo.png',
-    shortcut: '/icons/logo.png',
-    apple: '/icons/logo.png',
+    icon: '/icons/logo.svg',
+    shortcut: '/icons/logo.svg',
+    apple: '/apple-icon.png',
   },
 };
 
@@ -105,32 +112,16 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       <head>
         <ThemeScript />
         <link rel="manifest" href="/manifest.json" />
-        <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png" />
-        <link rel="icon" type="image/png" sizes="16x16" href="/favicon.png" />
-        <link rel="shortcut icon" href="/favicon.png" />
-        <link rel="apple-touch-icon" href="/favicon.png" />
-        <link rel="apple-touch-icon" sizes="180x180" href="/favicon.png" />
-        <link rel="apple-touch-icon" sizes="152x152" href="/favicon.png" />
-        <link rel="apple-touch-icon" sizes="144x144" href="/favicon.png" />
-        <link rel="apple-touch-icon" sizes="120x120" href="/favicon.png" />
-        <link rel="apple-touch-icon" sizes="114x114" href="/favicon.png" />
-        <link rel="apple-touch-icon" sizes="76x76" href="/favicon.png" />
-        <link rel="apple-touch-icon" sizes="72x72" href="/favicon.png" />
-        <link rel="apple-touch-icon" sizes="60x60" href="/favicon.png" />
-        <link rel="apple-touch-icon" sizes="57x57" href="/favicon.png" />
-        <meta name="theme-color" content="#0891b2" />
+        <link rel="icon" type="image/svg+xml" href="/icons/logo.svg" />
+        <meta name="theme-color" content="#c96442" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
-        <meta
-          name="apple-mobile-web-app-status-bar-style"
-          content="default"
-        />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
         <meta name="apple-mobile-web-app-title" content="Meet The Future" />
-        <meta name="apple-touch-fullscreen" content="yes" />
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="application-name" content="Meet The Future" />
       </head>
       <body
-        className={`${inter.variable} ${jetbrainsMono.variable} antialiased bg-gray-50 dark:bg-gray-900 font-sans theme-transition`}
+        className={`${inter.variable} ${jetbrainsMono.variable} ${sourceSerif4.variable} antialiased`}
         suppressHydrationWarning={true}
       >
         <GoogleAnalytics />
@@ -139,7 +130,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
             <AlertProvider>
               <ScrollToTop />
               <Navigation />
-              <main className="min-h-screen pt-16">{children}</main>
+              <main className="min-h-screen">{children}</main>
             </AlertProvider>
           </Providers>
         </ThemeProvider>

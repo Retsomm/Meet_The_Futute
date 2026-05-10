@@ -2,39 +2,122 @@
 @tailwind components;
 @tailwind utilities;
 
-/* 防止主題切換時的閃爍 */
-.theme-transition {
-  transition: background-color 0.3s ease, color 0.3s ease;
-}
-
-/* 確保初始載入時沒有閃爍 */
-html {
-  color-scheme: light;
-}
-
-html.dark {
-  color-scheme: dark;
-}
-
+/* ===================== DESIGN TOKENS ===================== */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --bg: #faf7f2;
+  --bg-2: #f4efe6;
+  --bg-3: #ece5d8;
+  --surface: #ffffff;
+  --ink: #2c2825;
+  --ink-2: #4a4540;
+  --ink-3: #75706a;
+  --ink-4: #a8a29a;
+  --line: #e6dfd1;
+  --line-2: #d8d0bf;
+  --accent: #c96442;
+  --accent-ink: #fff8f3;
+  --accent-soft: #f1d9cd;
+  --accent-bg: #f8ece4;
+  --positive: #5b7a4f;
+  --positive-bg: #e9efe2;
+  --warn: #b06f3a;
+  --warn-bg: #f5e7d6;
+  --shadow-sm: 0 1px 0 rgba(44,40,37,0.04), 0 1px 2px rgba(44,40,37,0.04);
+  --shadow-md: 0 1px 0 rgba(44,40,37,0.04), 0 2px 8px rgba(44,40,37,0.06);
+  --radius-sm: 6px;
+  --radius: 10px;
+  --radius-lg: 14px;
+  --serif: var(--font-source-serif, Georgia), serif;
+  --sans: var(--font-inter, system-ui), sans-serif;
+  --mono: var(--font-jetbrains-mono, ui-monospace), monospace;
 }
 
 html.dark {
-  --background: #0a0a0a;
-  --foreground: #ededed;
+  --bg: #1f1d1b;
+  --bg-2: #262320;
+  --bg-3: #2e2a26;
+  --surface: #262320;
+  --ink: #ebe5db;
+  --ink-2: #c5beb2;
+  --ink-3: #908779;
+  --ink-4: #6b6358;
+  --line: #3a342e;
+  --line-2: #4a4339;
+  --accent: #d97757;
+  --accent-ink: #1f1d1b;
+  --accent-soft: #4a3026;
+  --accent-bg: #2f231d;
+  --positive: #94b582;
+  --positive-bg: #2a3024;
+  --warn: #d49869;
+  --warn-bg: #332620;
+  --shadow-sm: 0 1px 0 rgba(0,0,0,0.2);
+  --shadow-md: 0 1px 0 rgba(0,0,0,0.2), 0 2px 8px rgba(0,0,0,0.25);
 }
+
+/* ===================== BASE ===================== */
+html { color-scheme: light; }
+html.dark { color-scheme: dark; }
 
 body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  font-family: var(--sans);
+  background: var(--bg);
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  transition: background-color 0.25s ease, color 0.25s ease;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root:not(.light) {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+::selection { background: var(--accent-soft); color: var(--ink); }
+
+/* Spinner animation used in loading states */
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ===================== COMPONENTS ===================== */
+@layer components {
+  .eyebrow {
+    @apply font-mono text-[11px] tracking-[0.14em] uppercase m-0;
+    color: var(--ink-3);
   }
+
+  .btn-d {
+    @apply inline-flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-[13.5px] transition-all border cursor-pointer;
+  }
+  .btn-primary-d {
+    background-color: var(--accent);
+    color: var(--accent-ink);
+    border-color: transparent;
+  }
+  .btn-primary-d:hover { filter: brightness(0.95); }
+
+  .btn-secondary-d {
+    background-color: var(--surface);
+    color: var(--ink);
+    border-color: var(--line);
+    box-shadow: var(--shadow-sm);
+  }
+  .btn-secondary-d:hover {
+    background-color: var(--bg-2);
+    border-color: var(--line-2);
+  }
+
+  .btn-lg-d {
+    @apply px-5 py-3 text-[14.5px];
+  }
+
+  .progress-d {
+    @apply h-[3px] rounded-full overflow-hidden;
+    background-color: var(--bg-3);
+  }
+  .progress-d > span {
+    display: block;
+    height: 100%;
+    background: var(--accent);
+    border-radius: 9999px;
+    transition: width 0.5s ease;
+  }
+  .progress-green-d > span { background: var(--positive); }
+  .progress-warn-d > span { background: var(--warn); }
 }

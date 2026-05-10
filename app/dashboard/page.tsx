@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { storageManager } from '../../lib/storage';
 import {
   calculateGoalProgress,
@@ -12,15 +13,8 @@ import GoalProgressChart from '../components/GoalProgressChart';
 import PersonalComparison from '../components/PersonalComparison';
 import AuthGuard from '../components/AuthGuard';
 import { useAlert } from '../components/Alert';
-import {
-  FiTarget,
-  FiTrendingUp,
-  FiUser,
-  FiCheckCircle,
-  FiDatabase,
-} from 'react-icons/fi';
 
-export default function DashboardPage() {
+const DashboardPage = () => {
   const [goals, setGoals] = useState<Goal[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadingSample, setLoadingSample] = useState(false);
@@ -34,16 +28,13 @@ export default function DashboardPage() {
 
   const handleLoadSampleData = async (): Promise<void> => {
     setLoadingSample(true);
-
     try {
       const existingGoals = storageManager.getGoals();
-
       await new Promise<void>((resolve) => setTimeout(resolve, 800));
 
       const hasSampleData = existingGoals.some((goal) =>
         sampleGoals.some((sample) => sample.title === goal.title)
       );
-
       if (hasSampleData) {
         showAlert('範例資料已存在，無需重複載入。', 'warning');
         return;
@@ -66,7 +57,6 @@ export default function DashboardPage() {
         existingGoals.length > 0
           ? `範例資料已成功加入！新增了 ${newSampleGoals.length} 個範例目標到您現有的 ${existingGoals.length} 個目標中。`
           : '範例資料載入成功！現在您可以體驗完整的目標追蹤功能。';
-
       showAlert(message, 'success', 6000);
     } catch (error) {
       console.error('載入範例資料時發生錯誤:', error);
@@ -78,29 +68,18 @@ export default function DashboardPage() {
 
   const overallProgress =
     goals.length > 0
-      ? Math.round(
-          goals.reduce((sum, g) => sum + calculateGoalProgress(g), 0) /
-            goals.length
-        )
+      ? Math.round(goals.reduce((sum, g) => sum + calculateGoalProgress(g), 0) / goals.length)
       : 0;
-
-  const completedGoals = goals.filter(
-    (g) => calculateGoalProgress(g) === 100
-  ).length;
+  const completedGoals = goals.filter((g) => calculateGoalProgress(g) === 100).length;
   const totalSubGoals = goals.reduce((sum, g) => sum + g.subGoals.length, 0);
-  const completedSubGoals = goals.reduce(
-    (sum, g) => sum + g.subGoals.filter((sg) => sg.isCompleted).length,
-    0
-  );
+  const completedSubGoals = goals.reduce((sum, g) => sum + g.subGoals.filter((sg) => sg.isCompleted).length, 0);
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 transition-colors">
+      <div className="min-h-screen flex items-center justify-center bg-bg">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600 mx-auto" />
-          <p className="mt-4 text-gray-600 dark:text-gray-300 transition-colors">
-            載入中...
-          </p>
+          <div className="w-10 h-10 border-2 border-line border-t-accent rounded-full animate-spin mx-auto" />
+          <p className="mt-4 text-ink-3 font-mono text-[12px] tracking-[0.1em]">LOADING</p>
         </div>
       </div>
     );
@@ -108,222 +87,124 @@ export default function DashboardPage() {
 
   return (
     <AuthGuard>
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 py-8 transition-colors">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4 transition-colors">
-              目標追蹤儀表板
-            </h1>
-            <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto transition-colors">
-              量化你與未來自己的差距，見證每一步的成長進度
-            </p>
-          </div>
-
-          {goals.length === 0 ? (
-            <div className="text-center py-16">
-              <FiTarget className="mx-auto h-24 w-24 text-gray-400 dark:text-gray-500 mb-8 transition-colors" />
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4 transition-colors">
-                還沒有設定任何目標
-              </h2>
-              <p className="text-gray-600 dark:text-gray-300 mb-8 transition-colors">
-                前往後台管理建立你的第一個目標，開始追蹤成長進度
-              </p>
-              <div className="flex justify-center space-x-4">
-                <a
-                  href="/admin"
-                  className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 transition-colors"
-                >
-                  <FiTarget className="mr-2 h-5 w-5" />
-                  建立第一個目標
-                </a>
-                <button
-                  onClick={() => void handleLoadSampleData()}
-                  disabled={loadingSample}
-                  className={`inline-flex items-center px-6 py-3 border border-gray-300 dark:border-gray-600 text-base font-medium rounded-md transition-colors ${
-                    loadingSample
-                      ? 'text-gray-400 dark:text-gray-500 bg-gray-100 dark:bg-gray-800 cursor-not-allowed'
-                      : 'text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700'
-                  }`}
-                >
-                  {loadingSample ? (
-                    <>
-                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-gray-600 dark:border-gray-400 mr-2" />
-                      載入中...
-                    </>
-                  ) : (
-                    <>
-                      <FiDatabase className="mr-2 h-5 w-5" />
-                      加入範例資料
-                    </>
-                  )}
-                </button>
-              </div>
-            </div>
-          ) : (
-            <div className="space-y-8">
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 transition-colors">
-                  <div className="flex items-center">
-                    <FiTarget className="h-8 w-8 text-blue-600 dark:text-blue-400" />
-                    <div className="ml-4">
-                      <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                        總目標數
-                      </p>
-                      <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                        {goals.length}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 transition-colors">
-                  <div className="flex items-center">
-                    <FiCheckCircle className="h-8 w-8 text-green-600 dark:text-green-400" />
-                    <div className="ml-4">
-                      <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                        已完成目標
-                      </p>
-                      <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                        {completedGoals}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 transition-colors">
-                  <div className="flex items-center">
-                    <FiTrendingUp className="h-8 w-8 text-purple-600 dark:text-purple-400" />
-                    <div className="ml-4">
-                      <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                        整體進度
-                      </p>
-                      <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                        {overallProgress}%
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 transition-colors">
-                  <div className="flex items-center">
-                    <FiUser className="h-8 w-8 text-orange-600 dark:text-orange-400" />
-                    <div className="ml-4">
-                      <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                        與未來差距
-                      </p>
-                      <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                        {100 - overallProgress}%
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 transition-colors">
-                <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-6">
-                  目標進度總覽
-                </h2>
-                <GoalProgressChart goals={goals} />
-              </div>
-
-              <PersonalComparison
-                goals={goals}
-                overallProgress={overallProgress}
-              />
-
-              <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 transition-colors">
-                <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-6">
-                  詳細進度
-                </h2>
-                <div className="space-y-6">
-                  {goals.map((goal) => {
-                    const progress = calculateGoalProgress(goal);
-                    const gap = calculateGapToFuture(goal);
-
-                    return (
-                      <div
-                        key={goal.id}
-                        className="border border-gray-200 dark:border-gray-700 rounded-lg p-6 transition-colors"
-                      >
-                        <div className="flex justify-between items-start mb-4">
-                          <div>
-                            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                              {goal.title}
-                            </h3>
-                            <p className="text-gray-600 dark:text-gray-300 mt-1">
-                              {goal.description}
-                            </p>
-                          </div>
-                          <div className="text-right">
-                            <span className="text-2xl font-bold text-blue-600 dark:text-blue-400">
-                              {progress}%
-                            </span>
-                            <p className="text-sm text-gray-500 dark:text-gray-400">
-                              完成度
-                            </p>
-                          </div>
-                        </div>
-
-                        <div className="mb-4">
-                          <div className="flex justify-between text-sm text-gray-600 dark:text-gray-400 mb-1">
-                            <span>進度</span>
-                            <span>
-                              {
-                                goal.subGoals.filter((sg) => sg.isCompleted)
-                                  .length
-                              }{' '}
-                              / {goal.subGoals.length} 子目標
-                            </span>
-                          </div>
-                          <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                            <div
-                              className="bg-blue-600 dark:bg-blue-500 h-2 rounded-full transition-all duration-300"
-                              style={{ width: `${progress}%` }}
-                            />
-                          </div>
-                        </div>
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                          <div>
-                            <p className="font-medium text-gray-700 dark:text-gray-300">
-                              目前的自己：
-                            </p>
-                            <p className="text-gray-600 dark:text-gray-400 mt-1">
-                              {goal.currentSelfDescription || '尚未設定'}
-                            </p>
-                          </div>
-                          <div>
-                            <p className="font-medium text-gray-700 dark:text-gray-300">
-                              未來的自己：
-                            </p>
-                            <p className="text-gray-600 dark:text-gray-400 mt-1">
-                              {goal.futureSelfDescription || '尚未設定'}
-                            </p>
-                          </div>
-                        </div>
-
-                        {gap > 0 && (
-                          <div className="mt-4 p-3 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-md">
-                            <p className="text-sm text-yellow-800 dark:text-yellow-200">
-                              <span className="font-medium">
-                                與未來自己還有 {gap}% 的差距
-                              </span>
-                              {gap <= 25 && ' - 很接近目標了！'}
-                              {gap > 25 && gap <= 50 && ' - 已經完成一半以上！'}
-                              {gap > 50 && gap <= 75 && ' - 持續努力中'}
-                              {gap > 75 && ' - 剛開始的路程'}
-                            </p>
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            </div>
-          )}
+      <div className="max-w-container mx-auto px-6 pb-20">
+        {/* Page header */}
+        <div className="pt-10 pb-6">
+          <p className="eyebrow">概覽</p>
+          <h1 className="font-serif text-[40px] font-medium tracking-[-0.02em] mt-2 mb-1.5">目標追蹤儀表板</h1>
+          <p className="text-ink-2 m-0 text-[15px]">量化你與未來自己的差距，見證每一步的成長進度。</p>
         </div>
+
+        {goals.length === 0 ? (
+          <div className="text-center py-20">
+            <div className="w-16 h-16 rounded-[16px] bg-bg-3 grid place-items-center mx-auto mb-8">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--ink-3)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/>
+              </svg>
+            </div>
+            <h2 className="font-serif text-[28px] font-medium mb-3">還沒有設定任何目標</h2>
+            <p className="text-ink-2 mb-8 text-[15px]">前往後台管理建立你的第一個目標，開始追蹤成長進度</p>
+            <div className="flex justify-center gap-2.5 flex-wrap">
+              <Link href="/admin" className="btn-d btn-primary-d btn-lg-d">建立第一個目標</Link>
+              <button
+                onClick={() => void handleLoadSampleData()}
+                disabled={loadingSample}
+                className={`btn-d btn-secondary-d btn-lg-d${loadingSample ? ' opacity-60' : ''}`}
+              >
+                {loadingSample ? '載入中...' : '加入範例資料'}
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div className="flex flex-col gap-6">
+            {/* Stat row */}
+            <div className="grid grid-cols-2 md:grid-cols-4 border border-line rounded-dl bg-surface overflow-hidden">
+              {[
+                { label: 'Total goals', value: goals.length, delta: null },
+                { label: 'Completed', value: completedGoals, delta: `${Math.round(completedGoals / Math.max(goals.length, 1) * 100)}% rate` },
+                { label: 'Progress', value: `${overallProgress}%`, delta: null },
+                { label: 'Gap to future self', value: `${100 - overallProgress}%`, accent: true },
+              ].map((s, i) => (
+                <div key={i} className="p-6 border-l border-line first:border-l-0 [&:nth-child(odd)]:border-l-0 md:[&:nth-child(odd)]:border-l md:[&:nth-child(1)]:border-l-0">
+                  <div className="font-mono text-[11px] tracking-[0.12em] uppercase text-ink-3">{s.label}</div>
+                  <div className={`font-serif text-[36px] font-medium leading-none mt-3 tracking-[-0.02em] ${s.accent ? 'text-accent' : 'text-ink'}`}>{s.value}</div>
+                  {s.delta && <div className="font-mono text-[11.5px] text-positive mt-2">{s.delta}</div>}
+                </div>
+              ))}
+            </div>
+
+            {/* Charts */}
+            <div className="bg-surface border border-line rounded-dl shadow-ds p-6">
+              <div className="mb-6">
+                <p className="eyebrow">圖表</p>
+                <h3 className="font-serif text-[20px] font-medium mt-1.5 mb-0 tracking-[-0.01em]">目標進度總覽</h3>
+              </div>
+              <GoalProgressChart goals={goals} />
+            </div>
+
+            {/* Personal comparison */}
+            <PersonalComparison goals={goals} overallProgress={overallProgress} />
+
+            {/* Detail */}
+            <div>
+              <div className="pb-2 mb-2">
+                <p className="eyebrow">明細</p>
+                <h2 className="font-serif text-[28px] font-medium mt-1.5 mb-0 tracking-[-0.02em]">詳細進度</h2>
+              </div>
+              <div className="bg-surface border border-line rounded-dl shadow-ds p-0">
+                {goals.map((goal, idx) => {
+                  const progress = calculateGoalProgress(goal);
+                  const gap = calculateGapToFuture(goal);
+                  const variant = progress === 100 ? 'green' : progress < 40 ? 'warn' : '';
+                  const pctColor = variant === 'green' ? 'text-positive' : variant === 'warn' ? 'text-warn' : 'text-accent';
+                  return (
+                    <div key={goal.id} className={`p-6${idx === 0 ? '' : ' border-t border-line'}`}>
+                      <div className="flex justify-between items-start gap-6">
+                        <div>
+                          <h3 className="font-serif text-[22px] font-medium tracking-[-0.01em] m-0">{goal.title}</h3>
+                          <div className="flex gap-3.5 font-mono text-[11px] tracking-[0.06em] text-ink-3 mt-2">
+                            <span>建立 · {new Date(goal.createdAt).toLocaleDateString('zh-TW')}</span>
+                            <span>· {goal.subGoals.filter(sg => sg.isCompleted).length} / {goal.subGoals.length} 子目標</span>
+                          </div>
+                        </div>
+                        <div className="text-right shrink-0">
+                          <div className={`font-serif text-[32px] font-medium tracking-[-0.02em] ${pctColor}`}>{progress}%</div>
+                        </div>
+                      </div>
+                      <div className={`progress-d${variant === 'green' ? ' progress-green-d' : variant === 'warn' ? ' progress-warn-d' : ''} mt-[18px]`}>
+                        <span style={{ width: `${progress}%` }} />
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-5">
+                        <div className="p-4 border border-line rounded-d bg-bg-2">
+                          <div className="font-mono text-[11px] tracking-[0.1em] uppercase text-ink-3 mb-1.5">目前的自己</div>
+                          <div className="text-[14px] text-ink-2 leading-[1.55]">{goal.currentSelfDescription || '尚未設定'}</div>
+                        </div>
+                        <div className="p-4 border border-line rounded-d bg-bg-2">
+                          <div className="font-mono text-[11px] tracking-[0.1em] uppercase text-ink-3 mb-1.5">未來的自己</div>
+                          <div className="text-[14px] text-ink-2 leading-[1.55]">{goal.futureSelfDescription || '尚未設定'}</div>
+                        </div>
+                      </div>
+                      {gap > 0 && (
+                        <div className="mt-4 p-[10px_14px] bg-warn-bg rounded-ds border border-line">
+                          <p className="text-[13px] text-warn m-0">
+                            <span className="font-medium">與未來自己還有 {gap}% 的差距</span>
+                            {gap <= 25 && ' — 很接近目標了！'}
+                            {gap > 25 && gap <= 50 && ' — 已經完成一半以上！'}
+                            {gap > 50 && gap <= 75 && ' — 持續努力中'}
+                            {gap > 75 && ' — 剛開始的路程'}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </AuthGuard>
   );
-}
+};
+
+export default DashboardPage;

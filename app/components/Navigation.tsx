@@ -1,276 +1,219 @@
 'use client';
 
 import Link from 'next/link';
-import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { useSession, signOut } from 'next-auth/react';
-import {
-  FiHome,
-  FiSettings,
-  FiTarget,
-  FiLogOut,
-  FiUser,
-  FiMenu,
-  FiX,
-} from 'react-icons/fi';
 import { useState } from 'react';
-import ThemeToggle from './ThemeToggle';
+import Image from 'next/image';
+import { useTheme } from './ThemeProvider';
 
-export default function Navigation() {
+const BrandMark = () => (
+  <div
+    className="w-[30px] h-[30px] rounded-lg grid place-items-center shrink-0 transition-colors duration-[250ms] ease-[ease]"
+    style={{ background: 'var(--ink)' }}
+  >
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+      <circle cx="12" cy="12" r="8.5" stroke="var(--bg)" strokeWidth="1.4" />
+      <circle cx="15.5" cy="15.5" r="2.6" fill="var(--accent)" />
+    </svg>
+  </div>
+);
+
+const SunIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="12" r="4"/>
+    <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/>
+  </svg>
+);
+
+const MoonIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+  </svg>
+);
+
+const MenuIcon = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
+    <line x1="3" y1="6" x2="21" y2="6"/>
+    <line x1="3" y1="12" x2="21" y2="12"/>
+    <line x1="3" y1="18" x2="21" y2="18"/>
+  </svg>
+);
+
+const CloseIcon = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
+    <line x1="18" y1="6" x2="6" y2="18"/>
+    <line x1="6" y1="6" x2="18" y2="18"/>
+  </svg>
+);
+
+const UserIcon = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+    <circle cx="12" cy="7" r="4"/>
+  </svg>
+);
+
+const Navigation = () => {
   const pathname = usePathname();
   const { data: session, status } = useSession();
+  const { theme, toggleTheme } = useTheme();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
+  const navItems = [
+    { href: '/', label: '首頁' },
+    ...(session ? [
+      { href: '/dashboard', label: '儀表板' },
+      { href: '/admin', label: '目標管理' },
+    ] : []),
+  ];
+
+  const isActive = (href: string) =>
+    href === '/' ? pathname === '/' : pathname.startsWith(href);
+
   return (
-    <>
-      <nav className="bg-white dark:bg-gray-800 shadow-sm border-b dark:border-gray-700 fixed w-full z-50 transition-colors">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16">
-            <div className="flex items-center">
-              <div className="flex-shrink-0 flex items-center">
-                <Link href="/" className="flex items-center space-x-2">
-                  <Image
-                    src="/icons/logo.png"
-                    alt="Meet The Future Logo"
-                    width={32}
-                    height={32}
-                    className="rounded-md"
-                    priority
-                  />
-                  <span className="text-xl font-bold text-gray-900 dark:text-white">
-                    Meet The Future
-                  </span>
-                </Link>
-              </div>
-            </div>
+    <nav
+      className="sticky top-0 z-40 border-b border-line backdrop-blur-md backdrop-saturate-150 bg-bg/90"
+    >
+      {/* Inner row */}
+      <div className="flex items-center gap-2 px-4 md:px-6 h-14 max-w-screen-xl mx-auto">
 
-            <div className="hidden md:flex items-center space-x-4">
-              <ThemeToggle />
-              <div className="flex items-center space-x-8">
-                <Link
-                  scroll={true}
-                  href="/"
-                  className={`inline-flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors ${
-                    pathname === '/'
-                      ? 'text-blue-600 bg-blue-50 dark:text-blue-400 dark:bg-blue-900/50'
-                      : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-700'
-                  }`}
-                >
-                  <FiHome className="mr-2 h-4 w-4" />
-                  首頁
-                </Link>
+        {/* Brand */}
+        <Link
+          href="/"
+          className="flex items-center gap-[10px] no-underline text-ink shrink-0"
+          style={{ fontFamily: 'var(--serif)', fontWeight: 500, fontSize: 17, letterSpacing: '-0.01em' }}
+        >
+          <BrandMark />
+          <span>
+            Meet The{' '}
+            <em className="not-italic font-medium text-accent">Future</em>
+          </span>
+        </Link>
 
-                {session && (
-                  <>
-                    <Link
-                      scroll={true}
-                      href="/dashboard"
-                      className={`inline-flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors ${
-                        pathname === '/dashboard'
-                          ? 'text-blue-600 bg-blue-50 dark:text-blue-400 dark:bg-blue-900/50'
-                          : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-700'
-                      }`}
-                    >
-                      <FiTarget className="mr-2 h-4 w-4" />
-                      目標追蹤
-                    </Link>
-
-                    <Link
-                      scroll={true}
-                      href="/admin"
-                      className={`inline-flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors ${
-                        pathname.startsWith('/admin')
-                          ? 'text-blue-600 bg-blue-50 dark:text-blue-400 dark:bg-blue-900/50'
-                          : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-700'
-                      }`}
-                    >
-                      <FiSettings className="mr-2 h-4 w-4" />
-                      後台管理
-                    </Link>
-                  </>
-                )}
-              </div>
-
-              <div className="flex items-center space-x-4 border-l dark:border-gray-600 pl-4">
-                {status === 'loading' ? (
-                  <div className="text-sm text-gray-500 dark:text-gray-400">
-                    載入中...
-                  </div>
-                ) : session ? (
-                  <div className="flex items-center space-x-3">
-                    <div className="flex items-center space-x-2">
-                      {session.user?.image ? (
-                        <Image
-                          src={session.user.image}
-                          alt={session.user.name ?? '用戶'}
-                          width={32}
-                          height={32}
-                          className="h-8 w-8 rounded-full"
-                        />
-                      ) : (
-                        <div className="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center">
-                          <FiUser className="h-4 w-4 text-blue-600" />
-                        </div>
-                      )}
-                      <span className="text-sm font-medium text-gray-700 dark:text-gray-200">
-                        {session.user?.name}
-                      </span>
-                    </div>
-                    <button
-                      onClick={() => signOut()}
-                      className="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-500 hover:text-gray-700 hover:bg-gray-50 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-700 rounded-md transition-colors"
-                    >
-                      <FiLogOut className="mr-2 h-4 w-4" />
-                      登出
-                    </button>
-                  </div>
-                ) : (
-                  <Link
-                    scroll={true}
-                    href="/auth/signin"
-                    className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700 rounded-md transition-colors"
-                  >
-                    <FiUser className="mr-2 h-4 w-4" />
-                    登入
-                  </Link>
-                )}
-              </div>
-            </div>
-
-            <div className="md:hidden flex items-center space-x-2">
-              <ThemeToggle />
-              <button
-                onClick={() => setIsMenuOpen(!isMenuOpen)}
-                className="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500 transition-colors"
-                aria-expanded={isMenuOpen}
-              >
-                <span className="sr-only">打開主選單</span>
-                {isMenuOpen ? (
-                  <FiX className="block h-6 w-6" aria-hidden="true" />
-                ) : (
-                  <FiMenu className="block h-6 w-6" aria-hidden="true" />
-                )}
-              </button>
-            </div>
-          </div>
+        {/* Nav links — desktop */}
+        <div className="hidden md:flex items-center gap-1 ml-2">
+          {navItems.map((item) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              className={`px-3 py-1.5 text-[13.5px] rounded-[7px] border-0 transition-all ${
+                isActive(item.href)
+                  ? 'text-ink bg-bg-2'
+                  : 'text-ink-2 bg-transparent hover:bg-bg-2 hover:text-ink'
+              }`}
+            >
+              {item.label}
+            </Link>
+          ))}
         </div>
 
-        {isMenuOpen && (
-          <div className="md:hidden">
-            <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-white dark:bg-gray-800 border-t dark:border-gray-700">
+        {/* Spacer */}
+        <div className="flex-1" />
+
+        {/* Actions */}
+        <div className="flex items-center gap-1.5">
+
+          {/* Theme toggle */}
+          <button
+            className="w-[34px] h-[34px] grid place-items-center bg-transparent border border-transparent rounded-lg text-ink-2 hover:bg-bg-2 hover:text-ink transition-all cursor-pointer"
+            onClick={toggleTheme}
+            title="切換主題"
+          >
+            {theme === 'dark' ? <SunIcon /> : <MoonIcon />}
+          </button>
+
+          {/* Desktop auth */}
+          <div className="hidden md:flex items-center gap-2">
+            {status === 'loading' ? (
               <Link
-                scroll={true}
-                href="/"
-                onClick={() => setIsMenuOpen(false)}
-                className={`block px-3 py-2 text-base font-medium rounded-md transition-colors ${
-                  pathname === '/'
-                    ? 'text-blue-600 bg-blue-50 dark:text-blue-400 dark:bg-blue-900/50'
-                    : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-700'
-                }`}
+                href="/auth/signin"
+                className="bg-surface text-ink border border-line shadow-ds hover:bg-bg-2 hover:border-ink px-4 py-2 rounded-lg text-sm font-medium inline-flex items-center gap-2 transition-all"
               >
-                <div className="flex items-center">
-                  <FiHome className="mr-3 h-5 w-5" />
-                  首頁
-                </div>
+                登入
               </Link>
-
-              {session && (
-                <>
-                  <Link
-                    scroll={true}
-                    href="/dashboard"
-                    onClick={() => setIsMenuOpen(false)}
-                    className={`block px-3 py-2 text-base font-medium rounded-md transition-colors ${
-                      pathname === '/dashboard'
-                        ? 'text-blue-600 bg-blue-50 dark:text-blue-400 dark:bg-blue-900/50'
-                        : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-700'
-                    }`}
-                  >
-                    <div className="flex items-center">
-                      <FiTarget className="mr-3 h-5 w-5" />
-                      目標追蹤
-                    </div>
-                  </Link>
-
-                  <Link
-                    scroll={true}
-                    href="/admin"
-                    onClick={() => setIsMenuOpen(false)}
-                    className={`block px-3 py-2 text-base font-medium rounded-md transition-colors ${
-                      pathname.startsWith('/admin')
-                        ? 'text-blue-600 bg-blue-50 dark:text-blue-400 dark:bg-blue-900/50'
-                        : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-700'
-                    }`}
-                  >
-                    <div className="flex items-center">
-                      <FiSettings className="mr-3 h-5 w-5" />
-                      後台管理
-                    </div>
-                  </Link>
-                </>
-              )}
-            </div>
-
-            <div className="pt-4 pb-3 border-t border-gray-200 dark:border-gray-600">
-              <div className="px-2 space-y-1">
-                {status === 'loading' ? (
-                  <div className="px-3 py-2 text-base font-medium text-gray-500 dark:text-gray-400">
-                    載入中...
-                  </div>
-                ) : session ? (
-                  <div className="px-3 py-2">
-                    <div className="flex items-center space-x-3 mb-3">
-                      {session.user?.image ? (
-                        <Image
-                          src={session.user.image}
-                          alt={session.user.name ?? '用戶'}
-                          width={40}
-                          height={40}
-                          className="h-10 w-10 rounded-full"
-                        />
-                      ) : (
-                        <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
-                          <FiUser className="h-6 w-6 text-blue-600" />
-                        </div>
-                      )}
-                      <div>
-                        <div className="text-base font-medium text-gray-800 dark:text-gray-200">
-                          {session.user?.name}
-                        </div>
-                        <div className="text-sm text-gray-500 dark:text-gray-400">
-                          {session.user?.email}
-                        </div>
-                      </div>
-                    </div>
-                    <button
-                      onClick={() => {
-                        void signOut();
-                        setIsMenuOpen(false);
-                      }}
-                      className="w-full flex items-center px-3 py-2 text-base font-medium text-gray-500 hover:text-gray-700 hover:bg-gray-50 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-700 rounded-md transition-colors"
-                    >
-                      <FiLogOut className="mr-3 h-5 w-5" />
-                      登出
-                    </button>
-                  </div>
+            ) : session ? (
+              <div className="flex items-center gap-2">
+                {session.user?.image ? (
+                  <Image
+                    src={session.user.image}
+                    alt={session.user.name ?? '用戶'}
+                    width={28}
+                    height={28}
+                    className="rounded-full"
+                  />
                 ) : (
-                  <Link
-                    scroll={true}
-                    href="/auth/signin"
-                    onClick={() => setIsMenuOpen(false)}
-                    className="block px-3 py-2 text-base font-medium text-white bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700 rounded-md transition-colors"
-                  >
-                    <div className="flex items-center">
-                      <FiUser className="mr-3 h-5 w-5" />
-                      登入
-                    </div>
-                  </Link>
+                  <div className="w-7 h-7 rounded-full bg-accent-bg grid place-items-center">
+                    <UserIcon />
+                  </div>
                 )}
+                <button
+                  onClick={() => void signOut()}
+                  className="bg-transparent text-ink-2 hover:bg-bg-2 hover:text-ink px-3 py-1.5 rounded-lg text-[13px] font-medium transition-all border border-transparent"
+                >
+                  登出
+                </button>
               </div>
-            </div>
+            ) : (
+              <Link
+                href="/auth/signin"
+                className="bg-surface text-ink border border-line shadow-ds hover:bg-bg-2 hover:border-ink px-4 py-2 rounded-lg text-sm font-medium inline-flex items-center gap-2 transition-all"
+              >
+                登入
+              </Link>
+            )}
           </div>
-        )}
-      </nav>
-    </>
+
+          {/* Mobile menu toggle */}
+          <button
+            className="w-[34px] h-[34px] grid place-items-center bg-transparent border border-transparent rounded-lg text-ink-2 hover:bg-bg-2 hover:text-ink transition-all cursor-pointer md:hidden"
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+            aria-label="切換選單"
+          >
+            {isMenuOpen ? <CloseIcon /> : <MenuIcon />}
+          </button>
+        </div>
+      </div>
+
+      {/* Mobile menu */}
+      {isMenuOpen && (
+        <div className="border-t border-line bg-bg px-4 pt-2 pb-4">
+          {navItems.map((item) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              onClick={() => setIsMenuOpen(false)}
+              className={`block px-3 py-2.5 rounded-lg text-[15px] font-medium mb-0.5 transition-all ${
+                isActive(item.href)
+                  ? 'text-ink bg-bg-2'
+                  : 'text-ink-2 bg-transparent hover:bg-bg-2 hover:text-ink'
+              }`}
+            >
+              {item.label}
+            </Link>
+          ))}
+          <div className="border-t border-line mt-2 pt-3">
+            {session ? (
+              <button
+                onClick={() => { void signOut(); setIsMenuOpen(false); }}
+                className="w-full justify-center bg-transparent text-ink-2 hover:bg-bg-2 hover:text-ink px-3 py-1.5 rounded-lg text-sm font-medium transition-all border border-transparent"
+              >
+                登出
+              </button>
+            ) : (
+              <Link
+                href="/auth/signin"
+                onClick={() => setIsMenuOpen(false)}
+                className="flex justify-center w-full bg-accent text-accent-ink hover:brightness-95 px-4 py-2 rounded-lg text-sm font-medium border border-transparent items-center gap-2 transition-all"
+              >
+                登入
+              </Link>
+            )}
+          </div>
+        </div>
+      )}
+    </nav>
   );
-}
+};
+
+export default Navigation;
