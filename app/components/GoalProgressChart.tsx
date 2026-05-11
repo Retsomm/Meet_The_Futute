@@ -59,7 +59,7 @@ export default function GoalProgressChart({ goals }: GoalProgressChartProps) {
 
   if (!goals || goals.length === 0) {
     return (
-      <div className="text-center py-8 text-gray-500">暫無目標數據</div>
+      <div className="text-center py-8 text-ink-3">暫無目標數據</div>
     );
   }
 
@@ -96,10 +96,10 @@ export default function GoalProgressChart({ goals }: GoalProgressChartProps) {
     if (active && payload && payload.length) {
       const data = payload[0].payload;
       return (
-        <div className="bg-white p-3 border border-gray-200 rounded-lg shadow-lg">
-          <p className="font-medium text-gray-900">{data.fullName}</p>
-          <p className="text-blue-600">進度: {data.progress}%</p>
-          <p className="text-red-500">差距: {data.gap}%</p>
+        <div className="bg-surface p-3 border border-line rounded-lg shadow-ds">
+          <p className="font-medium text-ink">{data.fullName}</p>
+          <p className="text-accent">進度: {data.progress}%</p>
+          <p className="text-warn">差距: {data.gap}%</p>
         </div>
       );
     }
@@ -109,7 +109,7 @@ export default function GoalProgressChart({ goals }: GoalProgressChartProps) {
   return (
     <div className="space-y-8">
       <div>
-        <h3 className="text-lg font-medium text-gray-900 mb-4">
+        <h3 className="text-lg font-medium text-ink mb-4">
           各目標進度對比
         </h3>
         <div className="h-64">
@@ -118,22 +118,25 @@ export default function GoalProgressChart({ goals }: GoalProgressChartProps) {
               data={barData}
               margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
             >
-              <CartesianGrid strokeDasharray="3 3" />
+              <CartesianGrid strokeDasharray="3 3" stroke="var(--line)" />
               <XAxis
                 dataKey="name"
-                tick={{ fontSize: 12 }}
+                tick={{ fontSize: 12, fill: 'var(--ink-3)' }}
                 interval={0}
                 angle={-45}
                 textAnchor="end"
                 height={80}
+                stroke="var(--line)"
               />
               <YAxis
                 domain={[0, 100]}
-                tick={{ fontSize: 12 }}
+                tick={{ fontSize: 12, fill: 'var(--ink-3)' }}
+                stroke="var(--line)"
                 label={{
                   value: '完成度 (%)',
                   angle: -90,
                   position: 'insideLeft',
+                  fill: 'var(--ink-3)',
                 }}
               />
               <Tooltip content={<CustomTooltip />} />
@@ -145,7 +148,7 @@ export default function GoalProgressChart({ goals }: GoalProgressChartProps) {
 
       {pieData.length > 0 && (
         <div>
-          <h3 className="text-lg font-medium text-gray-900 mb-4">
+          <h3 className="text-lg font-medium text-ink mb-4">
             目標狀態分布
           </h3>
           <div className="h-80 md:h-64">
@@ -179,6 +182,12 @@ export default function GoalProgressChart({ goals }: GoalProgressChartProps) {
                   ))}
                 </Pie>
                 <Tooltip
+                  contentStyle={{
+                    backgroundColor: 'var(--surface)',
+                    border: '1px solid var(--line)',
+                    borderRadius: '8px',
+                    color: 'var(--ink)',
+                  }}
                   formatter={(value: number, name: string) => [
                     value,
                     name === 'value' ? '目標數' : name,
@@ -195,7 +204,7 @@ export default function GoalProgressChart({ goals }: GoalProgressChartProps) {
                   className="w-3 h-3 rounded-full"
                   style={{ backgroundColor: entry.color }}
                 />
-                <span className="text-sm text-gray-600">
+                <span className="text-sm text-ink-2">
                   {entry.name}: {entry.value}
                 </span>
               </div>
