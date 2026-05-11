@@ -27,19 +27,13 @@ const providers: { id: Provider; label: string; icon: React.ReactNode }[] = [
 
 const handleSignIn = async (provider: Provider) => {
   const sb = getSupabase();
-  console.log('[auth] supabase client:', sb ? 'ok' : 'null');
-  console.log('[auth] env url:', process.env.NEXT_PUBLIC_SUPABASE_URL);
-  if (!sb) {
-    console.error('[auth] Supabase not configured — check env vars');
-    return;
-  }
-  const { error } = await sb.auth.signInWithOAuth({
+  if (!sb) return;
+  await sb.auth.signInWithOAuth({
     provider,
     options: {
       redirectTo: `${window.location.origin}/auth/callback`,
     },
   });
-  if (error) console.error('[auth] signInWithOAuth error:', error);
 };
 
 const SignIn = () => {
